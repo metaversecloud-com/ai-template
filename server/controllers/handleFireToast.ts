@@ -12,7 +12,7 @@ export const handleFireToast = async (req: Request, res: Response) => {
       text,
     });
 
-    return res.json({ world, success: true });
+    return res.json({ success: true });
   } catch (error) {
     return errorHandler({
       error,
