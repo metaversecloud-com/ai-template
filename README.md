@@ -72,14 +72,13 @@ _We use data objects to store information about each implementation of the app p
 ### Add your .env environmental variables
 
 ```json
-API_KEY=xxxxxxxxxxxxx
 INSTANCE_DOMAIN=api.topia.io
 INSTANCE_PROTOCOL=https
 INTERACTIVE_KEY=xxxxxxxxxxxxx
 INTERACTIVE_SECRET=xxxxxxxxxxxxxx
 ```
 
-### Where to find API_KEY, INTERACTIVE_KEY and INTERACTIVE_SECRET
+### Where to find INTERACTIVE_KEY and INTERACTIVE_SECRET
 
 [Topia Dev Account Dashboard](https://dev.topia.io/t/dashboard/integrations)
 
