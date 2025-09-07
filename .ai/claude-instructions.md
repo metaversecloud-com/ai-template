@@ -6,8 +6,8 @@ PROJECT CONTEXT
 - Stack: React + TypeScript (client), Node + Express (server).
 - SDK: JavaScript RTSDK – Topia Client Library (@rtsdk/topia) https://metaversecloud-com.github.io/mc-sdk-js/index.html
 - Repo baseline: https://github.com/metaversecloud-com/ai-template
-- Goal feature: On the home page, user can click 1 of 6 plant images to create & drop a new DroppedAsset in the world using the clicked image URL.
 - Clarification: You MAY modify client code EXCEPT the protected files below. Prefer editing existing components/pages referenced by App.tsx rather than changing App.tsx itself.
+- Goal:
 
 NON-NEGOTIABLES (DO NOT VIOLATE)
 
