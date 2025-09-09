@@ -7,7 +7,7 @@ PROJECT
 - Server: Node + Express
 - SDK: JavaScript RTSDK – Topia Client Library (@rtsdk/topia) https://metaversecloud-com.github.io/mc-sdk-js/index.html
 - Repo baseline: https://github.com/metaversecloud-com/ai-template
-- Goal: App runs inside a Topia iframe.
+- Goal: App runs inside an iframe in Topia.
 
 HARD CONSTRAINTS (DO NOT VIOLATE)
 
