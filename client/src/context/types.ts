@@ -1,3 +1,13 @@
+// Plant asset drop request/response types
+export interface DropPlantAssetRequest {
+  imageUrl: string;
+}
+
+export interface DropPlantAssetResponse {
+  success: boolean;
+  asset?: any; // Use IDroppedAsset if shared with client
+  error?: string;
+}
 export const SET_HAS_INTERACTIVE_PARAMS = "SET_HAS_INTERACTIVE_PARAMS";
 export const SET_GAME_STATE = "SET_GAME_STATE";
 export const SET_ERROR = "SET_ERROR";

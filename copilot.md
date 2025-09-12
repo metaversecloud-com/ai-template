@@ -6,7 +6,7 @@ PROJECT
 - SDK: JavaScript RTSDK – Topia Client Library (@rtsdk/topia) https://metaversecloud-com.github.io/mc-sdk-js/index.html.
 - Repo baseline: https://github.com/metaversecloud-com/ai-template.
 - This project MUST remain a faithful extension of the template.
-- Goal: On the home page, user can click 1 of 6 plant images to create & drop a new DroppedAsset in the world using the clicked image URL.
+- Users should be able to click on a image of a plant from a set of 6 options on the home page which creates and then drops a new DroppedAsset in the world using the url of that image. Existing client side code can be modified as needed.
 
 HARD CONSTRAINTS (DO NOT VIOLATE)
 
