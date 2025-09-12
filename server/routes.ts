@@ -1,6 +1,7 @@
 import express from "express";
 import {
   handleDropAsset,
+  handleDropPlantAsset,
   handleGetGameState,
   handleRemoveDroppedAssetsByUniqueName,
   handleFireToast,
@@ -31,6 +32,7 @@ router.get("/system/health", (req, res) => {
 // Dropped Assets
 router.get("/game-state", handleGetGameState);
 router.post("/dropped-asset", handleDropAsset);
+router.post("/drop-plant-asset", handleDropPlantAsset);
 router.post("/remove-dropped-assets", handleRemoveDroppedAssetsByUniqueName);
 
 // World
