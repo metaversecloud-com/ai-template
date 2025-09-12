@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 
 // components
-import { PageContainer, DroppedAssetDetails } from "@/components";
+import { PageContainer, DroppedAssetDetails, PlantPicker } from "@/components";
 
 // context
 import { GlobalDispatchContext, GlobalStateContext } from "@/context/GlobalContext";
@@ -35,6 +35,7 @@ export const Home = () => {
   return (
     <PageContainer isLoading={isLoading} headerText="Server side example using interactive parameters">
       <DroppedAssetDetails />
+      <PlantPicker />
     </PageContainer>
   );
 };

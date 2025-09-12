@@ -4,6 +4,7 @@ import {
   handleGetGameState,
   handleRemoveDroppedAssetsByUniqueName,
   handleFireToast,
+  handleDropPlant,
 } from "./controllers/index.js";
 import { getVersion } from "./utils/getVersion.js";
 
@@ -32,6 +33,7 @@ router.get("/system/health", (req, res) => {
 router.get("/game-state", handleGetGameState);
 router.post("/dropped-asset", handleDropAsset);
 router.post("/remove-dropped-assets", handleRemoveDroppedAssetsByUniqueName);
+router.post("/drop-plant", handleDropPlant);
 
 // World
 router.put("/world/fire-toast", handleFireToast);
