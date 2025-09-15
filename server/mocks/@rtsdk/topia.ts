@@ -8,6 +8,13 @@ export const drop = jest.fn().mockResolvedValue({
   assetName: "Plant",
   uniqueName: "plant-test",
 });
+export const get = jest.fn().mockResolvedValue({
+  id: "visitor-123",
+  dataObject: { droppedPlants: [] },
+  fetchDataObject: jest.fn().mockResolvedValue({ success: true }),
+  setDataObject: jest.fn().mockResolvedValue({ success: true }),
+  updateDataObject: jest.fn().mockResolvedValue({ success: true }),
+});
 
 export class Topia {
   constructor(_opts: any) {}
@@ -35,6 +42,10 @@ export class UserFactory {
 
 export class VisitorFactory {
   constructor(_topia: any) {}
+  get(visitorId: number, urlSlug: string, opts: any) {
+    (__mock as any).lastVisitorGetArgs = { visitorId, urlSlug, opts };
+    return get(visitorId, urlSlug, opts);
+  }
 }
 
 export class WorldFactory {
@@ -70,16 +81,20 @@ export const __mock = {
   triggerParticle,
   create,
   drop,
+  get,
   lastWorldCreateArgs: null as any,
   lastAssetCreateArgs: null as any,
   lastDroppedAssetArgs: null as any,
+  lastVisitorGetArgs: null as any,
   reset() {
     fireToast.mockClear();
     triggerParticle.mockClear();
     create.mockClear();
     drop.mockClear();
+    get.mockClear();
     this.lastWorldCreateArgs = null;
     this.lastAssetCreateArgs = null;
     this.lastDroppedAssetArgs = null;
+    this.lastVisitorGetArgs = null;
   },
 };

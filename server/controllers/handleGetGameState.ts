@@ -20,8 +20,19 @@ export const handleGetGameState = async (req: Request, res: Response) => {
       }),
     );
 
-    const visitor: VisitorInterface = await Visitor.get(visitorId, urlSlug, { credentials });
-    const { isAdmin } = visitor;
+    const visitor = await Visitor.get(visitorId, urlSlug, { credentials });
+    const { isAdmin } = visitor as VisitorInterface;
+
+    // Fetch the visitor's data object to get the list of dropped plants
+    let visitorData: any = {};
+    try {
+      await visitor.fetchDataObject();
+      visitorData = visitor.dataObject || {};
+    } catch (error) {
+      console.error("Error fetching visitor data object:", error);
+      // Initialize with empty data if fetchDataObject fails
+      visitorData = { droppedPlants: [] };
+    }
 
     try {
       await axios.post(
@@ -42,7 +53,13 @@ export const handleGetGameState = async (req: Request, res: Response) => {
       });
     }
 
-    return res.json({ droppedAsset, isAdmin, success: true });
+    // Return the droppedAsset, isAdmin flag, and droppedPlants array to the client
+    return res.json({
+      droppedAsset,
+      isAdmin,
+      droppedPlants: visitorData.droppedPlants || [],
+      success: true,
+    });
   } catch (error) {
     return errorHandler({
       error,

@@ -60,8 +60,16 @@ export const PlantPicker = () => {
     setIsDropping(true);
 
     try {
-      await backendAPI.post("/drop-plant", { imageUrl: plant.url, plantName: plant.name });
-      // Success message could be added here if needed
+      // Call the server to drop the plant
+      const response = await backendAPI.post("/drop-plant", {
+        imageUrl: plant.url,
+        plantName: plant.name,
+      });
+
+      if (response.data && response.data.success) {
+        // Update state with the new dropped asset if needed
+        console.log("Plant dropped successfully:", response.data.droppedAsset);
+      }
     } catch (error) {
       setErrorMessage(dispatch, error as ErrorType);
     } finally {

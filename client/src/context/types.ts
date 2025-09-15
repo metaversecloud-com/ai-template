@@ -19,6 +19,7 @@ export type InteractiveParams = {
 export interface InitialState {
   isAdmin?: boolean;
   droppedAsset?: { assetName: string; bottomLayerURL: string; id: string; topLayerURL: string };
+  droppedPlants?: string[]; // Array of dropped plant asset IDs
   error?: string;
   hasInteractiveParams?: boolean;
 }

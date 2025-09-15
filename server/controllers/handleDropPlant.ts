@@ -29,14 +29,12 @@ export const handleDropPlant = async (req: Request, res: Response): Promise<Reco
     const uniqueName = `plant-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
     // Create an asset for the plant
+    // Using the Topia Asset.create method
     const asset = Asset.create("webImageAsset", { credentials });
 
-    // Copilot's original code:
-    // const asset = Asset.create(imageUrl, { credentials });
-
     // Drop the plant asset into the world
-    // Use DroppedAsset.drop method to create the dropped asset
-    const droppedAsset = await DroppedAsset.drop(asset, {
+    // Using the Topia DroppedAsset.drop method to create the dropped asset
+    const droppedAsset: DroppedAssetInterface = await DroppedAsset.drop(asset, {
       isInteractive: true,
       interactivePublicKey,
       layer0: imageUrl,
@@ -45,14 +43,39 @@ export const handleDropPlant = async (req: Request, res: Response): Promise<Reco
       urlSlug,
     });
 
-    // Copilot's original code:
-    // const droppedAsset: DroppedAssetInterface = await DroppedAsset.drop(asset, {
-    //   isInteractive: true,
-    //   interactivePublicKey,
-    //   position,
-    //   uniqueName,
-    //   urlSlug,
-    // });
+    // Get the visitor to update their data object
+    // Using the Topia Visitor.get method
+    const visitor = await Visitor.get(visitorId, urlSlug, { credentials });
+
+    interface VisitorData {
+      droppedPlants?: string[];
+      [key: string]: any;
+    }
+
+    try {
+      // Initialize visitor data object if needed
+      const response = await visitor.fetchDataObject();
+      // The dataObject is stored in the visitor instance after fetch
+      const visitorData = (visitor.dataObject as VisitorData) || {};
+
+      // If no droppedPlants array exists, initialize it
+      if (!visitorData.droppedPlants || !Array.isArray(visitorData.droppedPlants)) {
+        await visitor.setDataObject({
+          ...visitorData,
+          droppedPlants: [droppedAsset.id],
+        });
+      } else {
+        await visitor.updateDataObject({
+          droppedPlants: [...visitorData.droppedPlants, droppedAsset.id],
+        });
+      }
+    } catch (error) {
+      console.error("Error updating visitor data object", error);
+      // Initialize with default data if fetchDataObject fails
+      await visitor.setDataObject({
+        droppedPlants: [droppedAsset.id],
+      });
+    }
 
     // Trigger a particle effect to highlight the new plant
     world.triggerParticle({

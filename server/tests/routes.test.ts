@@ -73,7 +73,7 @@ describe("routes", () => {
 
     // Assert SDK method calls
     expect(topiaMock.lastAssetCreateArgs).toBeTruthy();
-    expect(topiaMock.lastAssetCreateArgs.assetIdOrUrl).toBe(plantImageUrl);
+    expect(topiaMock.lastAssetCreateArgs.assetIdOrUrl).toBe("webImageAsset");
     expect(topiaMock.lastAssetCreateArgs.opts.credentials).toMatchObject(baseCreds);
 
     // Assert DroppedAsset.drop was called with correct parameters
@@ -84,6 +84,13 @@ describe("routes", () => {
     expect(topiaMock.lastDroppedAssetArgs.opts.position).toHaveProperty("x");
     expect(topiaMock.lastDroppedAssetArgs.opts.position).toHaveProperty("y");
     expect(topiaMock.lastDroppedAssetArgs.opts.uniqueName).toContain("plant-");
+    expect(topiaMock.lastDroppedAssetArgs.opts.layer0).toBe(plantImageUrl);
+
+    // Assert Visitor.get was called
+    expect(topiaMock.lastVisitorGetArgs).toBeTruthy();
+    expect(topiaMock.lastVisitorGetArgs.visitorId).toBe(baseCreds.visitorId);
+    expect(topiaMock.lastVisitorGetArgs.urlSlug).toBe(baseCreds.urlSlug);
+    expect(topiaMock.lastVisitorGetArgs.opts.credentials).toMatchObject(baseCreds);
 
     // Assert World.triggerParticle and World.fireToast were called
     expect(topiaMock.triggerParticle).toHaveBeenCalledTimes(1);

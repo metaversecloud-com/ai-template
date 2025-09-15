@@ -7,7 +7,6 @@ PROJECT CONTEXT
 - SDK: JavaScript RTSDK – Topia Client Library (@rtsdk/topia) https://metaversecloud-com.github.io/mc-sdk-js/index.html
 - Repo baseline: https://github.com/metaversecloud-com/ai-template
 - Clarification: You MAY modify client code EXCEPT the protected files below. Prefer editing existing components/pages referenced by App.tsx rather than changing App.tsx itself.
-- Goal: On the home page, user can click 1 of 6 plant images to create & drop a new DroppedAsset in the world using the clicked image URL.
 
 NON-NEGOTIABLES (DO NOT VIOLATE)
 
@@ -29,6 +28,7 @@ SDK USAGE POLICY
 - Wrap all SDK calls in try/catch and either:
   - return JSON `{ success: boolean, ... }`, or
   - throw and let server/errorHandler.ts handle it (follow existing controllers’ pattern).
+- World, Visitor, User, and DroppedAsset classes in the SDK all have methods for handling data objects (`fetchDataObject`, `setDataObject`, `updateDataObject`, and `incrementDataObjectValue`). Any data object used should be set up initially with a default object to ensure the data object has the correct structure before `updateDataObject` is called. An end to end example of this can be found in handleGetGameState.ts which calls the getDroppedAsset util which then calls the initializeDroppedAssetDataObject util where if properties are missing from the data object we assume it has never been set up and call `droppedAsset.setDataObject` with the appropriate default data. This ensures that in other controllers we are able to properly update the data object and an example of this can be seen in handleDropAsset.ts. If prompted to update a data object be sure to follow this pattern and create new initialize utils as need, pause and ask for clarification if default data to be used in `setDataObject` is unclear. Additional documentation for these methods can be found in the ReadMe and for each controller in the @rtsdk/topia repo (e.g. https://metaversecloud-com.github.io/mc-sdk-js/classes/controllers.Visitor.html#setdataobject).
 
 ARCHITECTURE & BOUNDARIES
 
