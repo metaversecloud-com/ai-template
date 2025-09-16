@@ -4,6 +4,11 @@ import {
   handleGetGameState,
   handleRemoveDroppedAssetsByUniqueName,
   handleFireToast,
+  handlePlantSeed,
+  handleHarvestPlant,
+  handlePurchaseSeed,
+  handleRemoveAllPlants,
+  handleUpdateGrowthLevels,
 } from "./controllers/index.js";
 import { getVersion } from "./utils/getVersion.js";
 
@@ -28,8 +33,17 @@ router.get("/system/health", (req, res) => {
   });
 });
 
-// Dropped Assets
+// Game State
 router.get("/game-state", handleGetGameState);
+
+// Plants and Gardening
+router.post("/plant-seed", handlePlantSeed);
+router.post("/harvest-plant", handleHarvestPlant);
+router.post("/purchase-seed", handlePurchaseSeed);
+router.post("/update-growth-levels", handleUpdateGrowthLevels);
+router.post("/remove-all-plants", handleRemoveAllPlants);
+
+// Dropped Assets
 router.post("/dropped-asset", handleDropAsset);
 router.post("/remove-dropped-assets", handleRemoveDroppedAssetsByUniqueName);
 

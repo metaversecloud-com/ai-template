@@ -1,12 +1,24 @@
 import { Request, Response } from "express";
-import { errorHandler, getCredentials, getDroppedAsset, Visitor, World } from "../utils/index.js";
+import {
+  errorHandler,
+  getCredentials,
+  getDroppedAsset,
+  getSeedById,
+  initializeVisitorDataObject,
+  initializeWorldDataObject,
+  SEEDS,
+  updateGrowthLevels,
+  Visitor,
+  World,
+} from "../utils/index.js";
 import { VisitorInterface } from "@rtsdk/topia";
 import axios from "axios";
 
 export const handleGetGameState = async (req: Request, res: Response) => {
   try {
     const credentials = getCredentials(req.query);
-    const { assetId, displayName, interactiveNonce, interactivePublicKey, profileId, urlSlug, visitorId } = credentials;
+    const { assetId, displayName, interactiveNonce, interactivePublicKey, profileId, sceneDropId, urlSlug, visitorId } =
+      credentials;
 
     const droppedAsset = await getDroppedAsset(credentials);
     if (droppedAsset instanceof Error) throw droppedAsset;
@@ -20,8 +32,39 @@ export const handleGetGameState = async (req: Request, res: Response) => {
       }),
     );
 
-    const visitor: VisitorInterface = await Visitor.get(visitorId, urlSlug, { credentials });
-    const { isAdmin } = visitor;
+    // Get the visitor and initialize their data
+    const visitor = await Visitor.get(visitorId, urlSlug, { credentials });
+    const { isAdmin } = visitor as VisitorInterface;
+
+    // Initialize the visitor's data object
+    let visitorData = await initializeVisitorDataObject(visitor);
+
+    // Initialize the world's data object
+    const worldData = await initializeWorldDataObject(world, sceneDropId, assetId);
+
+    // Track analytics event for app open
+    try {
+      console.log("User opened the app - tracking 'joins' event");
+      // Analytics tracking would go here in a real implementation
+      // Since trackEvent is not available, we'll just log it
+    } catch (error) {
+      console.error("Error tracking joins event:", error);
+    }
+
+    // Update growth levels for all plants
+    const updatedPlants = updateGrowthLevels(visitorData.plants);
+
+    // If plants were updated, save the changes
+    if (JSON.stringify(updatedPlants) !== JSON.stringify(visitorData.plants)) {
+      await visitor.updateDataObject({
+        plants: updatedPlants,
+      });
+
+      visitorData = {
+        ...visitorData,
+        plants: updatedPlants,
+      };
+    }
 
     try {
       await axios.post(
@@ -42,7 +85,30 @@ export const handleGetGameState = async (req: Request, res: Response) => {
       });
     }
 
-    return res.json({ droppedAsset, isAdmin, success: true });
+    // Prepare available seeds data for the client
+    const availableSeeds = SEEDS.map((seed) => {
+      const isLocked = !seed.unlockedByDefault && !visitorData.unlockedSeeds?.includes(seed.id);
+
+      return {
+        id: seed.id,
+        name: seed.name,
+        imageUrl: seed.imageUrl,
+        cost: seed.cost,
+        reward: seed.reward,
+        growthTime: seed.growthTime,
+        isLocked,
+      };
+    });
+
+    // Return the complete game state
+    return res.json({
+      success: true,
+      droppedAsset,
+      isAdmin,
+      visitorData,
+      worldData,
+      availableSeeds,
+    });
   } catch (error) {
     return errorHandler({
       error,

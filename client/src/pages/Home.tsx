@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 // components
 import { PageContainer, DroppedAssetDetails } from "@/components";
@@ -35,6 +36,11 @@ export const Home = () => {
   return (
     <PageContainer isLoading={isLoading} headerText="Server side example using interactive parameters">
       <DroppedAssetDetails />
+      <div className="mt-8 text-center">
+        <Link to="/garden" className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-md text-lg">
+          Go to Garden Game 🌱
+        </Link>
+      </div>
     </PageContainer>
   );
 };

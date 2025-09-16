@@ -5,3 +5,6 @@ export * from "./DroppedAssetDetails.js";
 export * from "./Loading.js";
 export * from "./PageContainer.js";
 export * from "./PageFooter.js";
+export { default as GardenView } from "./GardenView.js";
+export { default as GardenControls } from "./GardenControls.js";
+export { default as SeedPicker } from "./SeedPicker.js";

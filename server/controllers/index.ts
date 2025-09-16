@@ -2,3 +2,8 @@ export * from "./handleDropAsset.js";
 export * from "./handleFireToast.js";
 export * from "./handleGetGameState.js";
 export * from "./handleRemoveDroppedAssetsByUniqueName.js";
+export * from "./handlePlantSeed.js";
+export * from "./handleHarvestPlant.js";
+export * from "./handlePurchaseSeed.js";
+export * from "./handleRemoveAllPlants.js";
+export * from "./handleUpdateGrowthLevels.js";

@@ -4,3 +4,7 @@ export * from "./errorHandler.js";
 export * from "./getCredentials.js";
 export * from "./getVersion.js";
 export * from "./topiaInit.js";
+export * from "./seedData.js";
+export * from "./initializeWorldDataObject.js";
+export * from "./initializeVisitorDataObject.js";
+export * from "./growth/calculateGrowthLevel.js";
