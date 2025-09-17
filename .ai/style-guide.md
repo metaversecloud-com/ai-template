@@ -1,13 +1,15 @@
-## Topia SDK Styles Reference
+## Topia SDK Styles Guide
 
 This document outlines the approved CSS classes and styling patterns to use when developing with the Topia SDK.
 
+**All client-side components MUST adhere to these rules.**
+
 ### Core Principles
 
-1. **Prioritize using SDK-provided CSS classes** from https://sdk-style.s3.amazonaws.com/styles-3.0.2.css
-2. **Avoid using custom CSS classes or utility frameworks** but if you need to then use only Tailwind and not Bootstrap, etc.
-3. **Do not use inline styles** unless absolutely necessary for dynamic positioning
-4. **Add the `rtsdk` class to the root element** of your application (already in place in index.html)
+1. **SDK CSS Classes First** - Always use the SDK-provided CSS classes from [https://sdk-style.s3.amazonaws.com/styles-3.0.2.css](https://sdk-style.s3.amazonaws.com/styles-3.0.2.css)
+2. **No Tailwind Except When Necessary** - Only use Tailwind when an SDK class doesn't exist
+3. **No Inline Styles** - Except for dynamic positioning that cannot be handled via classes
+4. **Consistent Component Structure** - Follow the patterns in the examples directory
 
 ### Typography
 
@@ -18,32 +20,20 @@ This document outlines the approved CSS classes and styling patterns to use when
 <h3 className="h3">Heading 3</h3>
 <h4 className="h4">Heading 4</h4>
 
+// Body text
+<p className="p1">Standard body text</p>
+<p className="p2">Medium body text</p>
+<p className="p3">Small body text</p>
+<p className="p4">XSmall body text</p>
+
 // Text alignment
 <p className="text-left">Left aligned text</p>
 <p className="text-center">Center aligned text</p>
 <p className="text-right">Right aligned text</p>
 
 // Text variants
-<p className="p1">Standard body text</p>
-<p className="p2 text-success">Medium green body text</p>
-<p className="p3 text-error">Small red body text</p>
-<p className="p4">XSmall body text</p>
-```
-
-### State Classes
-
-```tsx
-// For selected items (use with other components)
-<div className="card selected">...</div>
-
-// For disabled items
-<div className="disabled">...</div>
-
-// For active states
-<div className="active">...</div>
-
-// For error states
-<div className="error">...</div>
+<p className="p2 text-success">Success text</p>
+<p className="p3 text-error">Error text</p>
 ```
 
 ### Buttons
@@ -178,11 +168,9 @@ This document outlines the approved CSS classes and styling patterns to use when
 </div>
 
 // Grid layout
-<div className="grid">
+<div className="grid gap-4">
   <div>Grid Item 1</div>
   <div>Grid Item 2</div>
-  <div>Grid Item 3</div>
-  <div>Grid Item 4</div>
 </div>
 ```
 
@@ -204,23 +192,6 @@ This document outlines the approved CSS classes and styling patterns to use when
 </div>
 ```
 
-### Important Usage Notes
-
-```tsx
-// IMPORTANT: React components should use className (not class)
-<div className="card">...</div> // ✅ Correct in React
-<div class="card">...</div> // ❌ Incorrect in React (use in HTML only)
-
-// Combining multiple classes
-<button className="btn btn-outline">Multiple Classes</button>
-
-// Using state modifier classes
-<div className="card selected">State-modified card</div>
-
-// Using text variant with color modifier
-<p className="p2 text-success">Success message</p>
-```
-
 ### Available Utility Classes
 
 - Text colors: `text-success`, `text-error`, `text-warning`, `text-muted`
@@ -228,5 +199,136 @@ This document outlines the approved CSS classes and styling patterns to use when
 - Spacing: `mt-1`, `mb-2`, `mx-auto`, `py-3` (m=margin, p=padding, x=horizontal, y=vertical)
 - Display: `hidden`, `block`, `inline`, `inline-block`
 - Position: `relative`, `absolute`, `fixed`
+
+## Common Mistakes to Avoid
+
+### ❌ Using Tailwind Instead of SDK Classes
+
+```tsx
+// ❌ INCORRECT
+<button className="px-4 py-2 bg-blue-500 text-white rounded-md">
+  Click Me
+</button>
+
+// ✅ CORRECT
+<button className="btn">
+  Click Me
+</button>
+```
+
+### ❌ Using Inline Styles
+
+```tsx
+// ❌ INCORRECT
+<div style={{ padding: '1rem', backgroundColor: 'white', borderRadius: '0.5rem' }}>
+  Content
+</div>
+
+// ✅ CORRECT
+<div className="card">
+  Content
+</div>
+```
+
+### ❌ Using Relative Imports
+
+```tsx
+// ❌ INCORRECT
+import { SomeComponent } from "../../components/SomeComponent";
+
+// ✅ CORRECT
+import { SomeComponent } from "@/components";
+```
+
+### ❌ Not Using GlobalContext for Errors
+
+```tsx
+// ❌ INCORRECT
+const [error, setError] = useState<string | null>(null);
+try {
+  // Some operation
+} catch (err) {
+  setError("An error occurred");
+}
+
+// ✅ CORRECT
+const dispatch = useContext(GlobalDispatchContext);
+try {
+  // Some operation
+} catch (err) {
+  setErrorMessage(dispatch, err as ErrorType);
+}
+```
+
+## Component Structure Pattern
+
+All components must follow this structure:
+
+```tsx
+// Imports grouped by type
+import { useContext, useState } from "react";
+
+// components (using aliased imports)
+import { PageContainer } from "@/components";
+
+// context
+import { GlobalDispatchContext, GlobalStateContext } from "@/context/GlobalContext";
+import { ErrorType } from "@/context/types";
+
+// utils
+import { backendAPI, setErrorMessage } from "@/utils";
+
+// Types defined outside the component
+interface ComponentProps {
+  // Props definition
+}
+
+// Component implementation
+export const ComponentName = ({ prop1, prop2 }: ComponentProps) => {
+  // Global context access
+  const dispatch = useContext(GlobalDispatchContext);
+
+  // Local state
+  const [localState, setLocalState] = useState(initialValue);
+
+  // Event handlers
+  const handleEvent = () => {
+    // Implementation using SDK classes and error handling
+  };
+
+  return (
+    // JSX using SDK classes
+    <div className="container">
+      <h2 className="h2">Title</h2>
+      <div className="card">{/* Content using SDK classes */}</div>
+    </div>
+  );
+};
+
+export default ComponentName;
+```
+
+## Pre-Implementation Checklist
+
+Before starting any implementation:
+
+- [ ] Review this style guide completely
+- [ ] Examine the examples in `.ai/examples/` directory
+- [ ] Identify all SDK classes needed for your components
+- [ ] Plan your component structure following the pattern above
+- [ ] Ensure your imports will use aliased paths
+- [ ] Plan to use GlobalContext for state and error handling
+
+## Validation Process
+
+After implementation, verify:
+
+- [ ] All UI elements use SDK classes, not Tailwind utilities
+- [ ] Buttons use `.btn` classes, not custom styling
+- [ ] Typography uses h1-h4, p1-p4 classes
+- [ ] Card structure follows SDK pattern
+- [ ] Imports use aliased paths
+- [ ] Error handling uses GlobalContext
+- [ ] No inline styles except for necessary dynamic positioning
 
 Remember to always prefer using the SDK-provided classes rather than creating custom styles or using utility frameworks like Tailwind. The classes documented here are specifically designed to work with the Topia SDK and maintain consistent styling across applications.

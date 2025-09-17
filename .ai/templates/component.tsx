@@ -1,8 +1,8 @@
-## Client Pages Pattern
+// @ts-nocheck
 
-Example of a React component page that follows the recommended pattern for the Topia SDK AI Template
+// Component Template
+// This template follows the required patterns for client components in the Topia SDK AI Template
 
-```tsx
 /**
  * Home page component
  * Demonstrates pattern for client-side pages with:
@@ -119,4 +119,3 @@ export const Home = () => {
 };
 
 export default Home;
-```
