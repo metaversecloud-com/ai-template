@@ -11,7 +11,6 @@ const globalReducer = (state: InitialState, action: ActionType) => {
     case SET_GAME_STATE:
       return {
         ...state,
-        droppedAsset: payload.droppedAsset,
         isAdmin: payload.isAdmin,
         error: "",
       };

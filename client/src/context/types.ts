@@ -18,7 +18,6 @@ export type InteractiveParams = {
 
 export interface InitialState {
   isAdmin?: boolean;
-  droppedAsset?: { assetName: string; bottomLayerURL: string; id: string; topLayerURL: string };
   error?: string;
   hasInteractiveParams?: boolean;
 }
