@@ -1,3 +1,4 @@
+export * from "./Accordion.js";
 export * from "./AdminView.js";
 export * from "./AdminIconButton.js";
 export * from "./ConfirmationModal.js";

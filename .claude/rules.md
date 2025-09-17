@@ -12,6 +12,7 @@ NON-NEGOTIABLES (DO NOT VIOLATE)
 
 - Do NOT modify:
   - client/App.tsx
+  - client/src/components/PageContainer.tsx
   - client/backendAPI.ts
   - client/setErrorMessage.ts
   - server/getCredentials.ts
@@ -57,8 +58,9 @@ ARCHITECTURE & BOUNDARIES
 - All SDK calls happen in server routes/controllers or server/utils — NEVER directly from React.
 - Flow: UI → client/backendAPI.ts (unchangeable) → server routes/controllers → Topia SDK.
 - Need new client behavior? Expose a new server route; do NOT bypass backendAPI.ts.
-- Follow patterns in existing client files for calling the server.
-- Prefer CSS classes from https://sdk-style.s3.amazonaws.com/styles-3.0.2.css; see usage examples in example.html.
+- Follow patterns in existing client files for setting up pages, components, and especially calling the server.
+-
+- Prefer CSS classes from https://sdk-style.s3.amazonaws.com/styles-3.0.2.css; see usage examples in [example.html](https://sdk-style.s3.amazonaws.com/example.html).
 - Follow server/controllers patterns (naming, error handling, response shape).
 - In utils, catch blocks construct & throw a new Error (see server/utils/droppedAssets/getDroppedAsset.ts). Controllers catch like server/controllers/handleGetGameState.ts.
 - Keep the SDK wrapper thin to simplify mocking/tests.
