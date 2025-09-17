@@ -1,19 +1,35 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { getSeedMenu, purchaseSeed, plantSeed } from "../../utils/gardenAPI";
-import { Seed } from "../../types/gardenTypes";
-import { PageContainer } from "../PageContainer";
-
 /**
- * SeedMenu component displays available seeds for planting
+ * SeedMenu component
+ * Displays available seeds for planting in a selected plot
  */
-const SeedMenu: React.FC = () => {
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+
+// components
+import { PageContainer } from "@/components";
+import { SeedCard } from "./SeedCard";
+
+// context
+import { GlobalDispatchContext, GlobalStateContext } from "@/context/GlobalContext";
+import { ErrorType } from "@/context/types";
+
+// utils
+import { backendAPI, setErrorMessage } from "@/utils";
+import { formatCurrency } from "@/utils/garden";
+import { Seed } from "@/utils/garden/seedsData";
+
+export const SeedMenu = () => {
+  // Access global state and dispatch
+  const dispatch = useContext(GlobalDispatchContext);
+  const { hasInteractiveParams } = useContext(GlobalStateContext);
+
   const [seeds, setSeeds] = useState<Seed[]>([]);
+  const [purchasedSeeds, setPurchasedSeeds] = useState<Record<number, boolean>>({});
   const [coinsAvailable, setCoinsAvailable] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedSeed, setSelectedSeed] = useState<number | null>(null);
-  const [processing, setProcessing] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [selectedSeedId, setSelectedSeedId] = useState<number | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -25,78 +41,69 @@ const SeedMenu: React.FC = () => {
   useEffect(() => {
     const fetchSeeds = async () => {
       try {
-        setLoading(true);
-        const response = await getSeedMenu();
+        setIsLoading(true);
+        const response = await backendAPI.get("/garden/seeds");
 
-        if (response.success && response.data) {
+        if (response.data) {
           setSeeds(response.data.seeds);
+          setPurchasedSeeds(response.data.purchasedSeeds || {});
           setCoinsAvailable(response.data.coinsAvailable);
-        } else {
-          setError(response.error || "Failed to load seeds");
         }
       } catch (err) {
-        setError("An unexpected error occurred");
-        console.error(err);
+        setErrorMessage(dispatch, err as ErrorType);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    fetchSeeds();
-  }, []);
+    if (hasInteractiveParams) {
+      fetchSeeds();
+    } else {
+      setIsLoading(false);
+    }
+  }, [dispatch, hasInteractiveParams]);
 
   // Handle selecting a seed
   const handleSelectSeed = (seedId: number) => {
-    setSelectedSeed(seedId === selectedSeed ? null : seedId);
+    setSelectedSeedId(seedId === selectedSeedId ? null : seedId);
   };
 
-  // Handle purchasing and planting a seed
-  const handlePlantSeed = async () => {
-    if (selectedSeed === null) {
-      setError("Please select a seed first");
-      return;
-    }
-
+  // Handle purchasing a seed
+  const handlePurchaseSeed = async (seedId: number) => {
     try {
-      setProcessing(true);
+      const seed = seeds.find((s) => s.id === seedId);
+      if (!seed) return;
 
-      // Get the selected seed
-      const seed = seeds.find((s) => s.id === selectedSeed);
+      const response = await backendAPI.post(`/garden/seeds/${seedId}/purchase`);
 
-      if (!seed) {
-        setError("Invalid seed selected");
-        return;
-      }
-
-      // Check if we need to purchase the seed
-      if (seed.cost > 0) {
-        const purchaseResponse = await purchaseSeed(selectedSeed);
-
-        if (!purchaseResponse.success) {
-          setError(purchaseResponse.error || "Failed to purchase seed");
-          return;
-        }
-
-        // Update available coins
-        if (purchaseResponse.data) {
-          setCoinsAvailable(purchaseResponse.data.coinsAvailable);
-        }
-      }
-
-      // Plant the seed
-      const plantResponse = await plantSeed(selectedSeed, plotId);
-
-      if (plantResponse.success && plantResponse.data) {
-        // Navigate to the plant details page
-        navigate(`/garden/plant/${plantResponse.data.plantId}`);
-      } else {
-        setError(plantResponse.error || "Failed to plant seed");
+      if (response.data) {
+        // Update purchased seeds and available coins
+        setPurchasedSeeds((prev) => ({ ...prev, [seedId]: true }));
+        setCoinsAvailable(response.data.coinsAvailable);
       }
     } catch (err) {
-      setError("An unexpected error occurred");
-      console.error(err);
+      setErrorMessage(dispatch, err as ErrorType);
+    }
+  };
+
+  // Handle planting a seed
+  const handlePlantSeed = async () => {
+    if (selectedSeedId === null || isNaN(plotId)) return;
+
+    try {
+      setIsProcessing(true);
+      const response = await backendAPI.post(`/garden/plots/${plotId}/plant`, {
+        seedId: selectedSeedId,
+      });
+
+      if (response.data) {
+        // Navigate to the plant details page
+        navigate(`/garden/plant/${response.data.plantId}`);
+      }
+    } catch (err) {
+      setErrorMessage(dispatch, err as ErrorType);
     } finally {
-      setProcessing(false);
+      setIsProcessing(false);
     }
   };
 
@@ -105,136 +112,73 @@ const SeedMenu: React.FC = () => {
     navigate("/garden/plots");
   };
 
-  if (loading) {
-    return (
-      <PageContainer headerText="Seed Menu" isLoading={true}>
-        <></>
-      </PageContainer>
-    );
-  }
-
   if (isNaN(plotId)) {
     return (
       <PageContainer headerText="Seed Menu" isLoading={false}>
-        <div className="p-4 bg-red-100 text-red-700 rounded-md mb-4">
-          <p>Invalid plot selected. Please go back and try again.</p>
+        <div className="container">
+          <div className="card card-error">
+            <div className="card-details">
+              <p className="p2">Invalid plot selected. Please go back and try again.</p>
+              <div className="actions mt-4">
+                <button className="btn" onClick={handleBackToGarden}>
+                  Back to Garden
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={handleBackToGarden}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-        >
-          Back to Garden
-        </button>
       </PageContainer>
     );
   }
 
   return (
-    <PageContainer headerText="Seed Menu" isLoading={false}>
-      <div className="max-w-3xl mx-auto">
-        {error && (
-          <div className="p-4 bg-red-100 text-red-700 rounded-md mb-4">
-            <p>{error}</p>
-            <button onClick={() => setError(null)} className="mt-2 px-3 py-1 bg-red-600 text-white rounded-md text-sm">
-              Dismiss
-            </button>
-          </div>
-        )}
-
-        <div className="flex justify-between items-center mb-6">
-          <button
-            onClick={handleBackToGarden}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
-          >
+    <PageContainer headerText="Seed Menu" isLoading={isLoading}>
+      <div className="container">
+        <div className="toolbar">
+          <button className="btn btn-secondary" onClick={handleBackToGarden}>
             Back to Garden
           </button>
 
-          <div className="bg-amber-100 px-4 py-2 rounded-md flex items-center">
+          <div className="coin-display">
             <img
               src="https://storage.googleapis.com/topia-world-assets/garden-game/coin_icon.png"
               alt="Coins"
-              className="w-6 h-6 mr-2"
+              className="icon-sm"
             />
-            <span className="font-medium text-amber-800">{coinsAvailable} Coins</span>
+            <span className="p2 text-highlight">{formatCurrency(coinsAvailable)} Coins</span>
           </div>
         </div>
 
-        <div className="p-4 bg-green-50 rounded-lg mb-6">
-          <p className="text-green-800">
-            Select a seed to plant in Plot {plotId + 1}. Some seeds cost coins to purchase.
-          </p>
+        <div className="card card-info mb-4">
+          <div className="card-details">
+            <p className="p2">Select a seed to plant in Plot {plotId + 1}. Some seeds cost coins to purchase.</p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-          {seeds.map((seed) => {
-            const isSelected = selectedSeed === seed.id;
-            const canAfford = seed.cost <= coinsAvailable;
-            const seedClass = `p-4 border-2 rounded-lg cursor-pointer transition-all ${
-              isSelected ? "border-green-500 bg-green-50" : "border-gray-200 hover:border-green-300"
-            } ${!canAfford && seed.cost > 0 ? "opacity-50 cursor-not-allowed" : ""}`;
-
-            return (
-              <div key={`seed-${seed.id}`} className={seedClass} onClick={() => canAfford && handleSelectSeed(seed.id)}>
-                <div className="flex flex-col items-center">
-                  <img src={seed.imageUrl} alt={seed.name} className="w-20 h-20 object-contain mb-2" />
-                  <h3 className="font-medium text-lg">{seed.name}</h3>
-
-                  <div className="mt-2 flex items-center">
-                    {seed.cost > 0 ? (
-                      <>
-                        <img
-                          src="https://storage.googleapis.com/topia-world-assets/garden-game/coin_icon.png"
-                          alt="Cost"
-                          className="w-4 h-4 mr-1"
-                        />
-                        <span className={`text-sm ${canAfford ? "text-amber-700" : "text-red-600"}`}>
-                          {seed.cost} coins
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-sm text-green-600">Free</span>
-                    )}
-                  </div>
-
-                  <div className="mt-1 flex items-center">
-                    <img
-                      src="https://storage.googleapis.com/topia-world-assets/garden-game/reward_icon.png"
-                      alt="Reward"
-                      className="w-4 h-4 mr-1"
-                    />
-                    <span className="text-sm text-green-700">{seed.reward} coin reward</span>
-                  </div>
-
-                  <div className="mt-1 text-xs text-gray-600">
-                    Grows in {Math.round(seed.growthTimeSeconds / 60)} minutes
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+        <div className="grid-container">
+          {seeds.map((seed) => (
+            <SeedCard
+              key={`seed-${seed.id}`}
+              seed={seed}
+              isPurchased={!!purchasedSeeds[seed.id]}
+              isSelected={selectedSeedId === seed.id}
+              canAfford={seed.cost <= coinsAvailable}
+              onSelect={() => handleSelectSeed(seed.id)}
+              onPurchase={() => handlePurchaseSeed(seed.id)}
+            />
+          ))}
         </div>
 
-        <div className="flex justify-center">
+        <div className="actions mt-4 flex-center">
           <button
+            className="btn btn-primary"
             onClick={handlePlantSeed}
-            disabled={selectedSeed === null || processing}
-            className={`px-6 py-3 rounded-md text-white font-semibold ${
-              selectedSeed === null ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
-            }`}
+            disabled={selectedSeedId === null || isProcessing}
           >
-            {processing ? (
-              <div className="flex items-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
-                <span>Processing...</span>
-              </div>
-            ) : (
-              "Plant Selected Seed"
-            )}
+            {isProcessing ? "Planting..." : "Plant Selected Seed"}
           </button>
         </div>
       </div>
     </PageContainer>
   );
 };
-
-export default SeedMenu;

@@ -2,14 +2,14 @@
 
 This document outlines the approved CSS classes and styling patterns to use when developing with the Topia SDK.
 
-**All client-side components MUST adhere to these rules.**
+**All client-side components MUST adhere to these rules**
 
 ### Core Principles
 
 1. **SDK CSS Classes First** - Always use the SDK-provided CSS classes from [https://sdk-style.s3.amazonaws.com/styles-3.0.2.css](https://sdk-style.s3.amazonaws.com/styles-3.0.2.css)
 2. **No Tailwind Except When Necessary** - Only use Tailwind when an SDK class doesn't exist
 3. **No Inline Styles** - Except for dynamic positioning that cannot be handled via classes
-4. **Consistent Component Structure** - Follow the patterns in the examples directory
+4. **Consistent Component Structure** - Follow all patterns in [.ai/templates/component.tsx](.ai/templates/component.tsx)
 
 ### Typography
 

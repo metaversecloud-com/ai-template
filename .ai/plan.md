@@ -1,18 +1,14 @@
 # Gardening Game Plan
 
-Read `.ai/rules.md` first. Do not propose any code yet.
+Read `.ai/rules.md` and `.ai/style-guide.md` first. Do not propose any code yet.
 
-## PLAN REQUEST
-
-I want to use this repo as a starting point to create a new app with the following functionality:
-
-## Game Overview
+## 1. Project Overview
 
 A relaxing, loop-based gardening game where players plant seeds, grow crops, and harvest them to earn rewards.
 
 This version focuses on core mechanics only: planting, growing, and harvesting. Future updates may include trading, crafting, pests, weather cycles, and cross-player co-op.
 
-## Core Gameplay Loop
+## 2. Core User Flow
 
 1. Plant a seed from the seed menu
 2. Wait for growth time (real time or simulated)
@@ -20,24 +16,57 @@ This version focuses on core mechanics only: planting, growing, and harvesting. 
 4. Earn coins or points
 5. Use rewards to unlock new seed types or decor
 
-## Important Terminology
+## 3. Important Terminology
 
-The "Key Asset" refers to a dropped asset that is already in world that when clicked will open this app in an iframe. All necessary credentials will be passed to that iframe by default. Note that this is separate from all plant dropped assets and will be the only dropped asset that is clickable in this version of the app.
+- **Key Asset**: A dropped asset that is already in world that when clicked will open this app in an iframe. All necessary credentials will be passed to that iframe by default. Note that this is separate from all plant dropped assets and will be the only dropped asset that is clickable in this version of the app.
+- **Plot**: An area in the world where players can plant seeds.
+- **Seed**: An item that can be planted in a plot to grow a plant.
+- **Plant**: A growing or harvestable crop that yields rewards.
 
-## CRITICAL STYLING REQUIREMENTS
+## 4. Technical Requirements
+
+### Styling Guidelines
 
 All client-side components MUST follow the comprehensive styling guide in `.ai/style-guide.md`.
 
-Key requirements:
+#### Component-Specific Styling
 
-- Use SDK CSS classes for all UI elements
-- Follow the component structure pattern in examples
-- Use aliased imports and proper error handling
-- Validate styling before submitting implementation
+- **Home Page**:
 
-## Data Object setup
+  - Use `.card` for instruction sections
+  - Use `.h1` for main title, `.h2` for section headings
+  - Use `.btn` for action buttons
+  - Use `.flex-col` for vertical layout
 
-### World Data Object
+- **Plot Selection**:
+
+  - Use `.grid` for plot layout
+  - Use `.card` with `.selected` modifier for active plots
+  - Use `.p2` for plot information text
+  - Use `.btn` for "Claim Plot" button
+
+- **Seed Menu**:
+
+  - Use `.card small` for individual seed items
+  - Use `.badge` to indicate locked/unlocked status
+  - Use `.card-title h3` for seed names
+  - Use `.btn btn-outline` for secondary actions
+
+- **Plant View**:
+  - Use `.progress-bar` for growth indicator
+  - Use `.badge success` for harvest-ready indicator
+  - Use `.btn btn-danger` for delete actions
+  - Use `.p3 text-muted` for timestamps
+
+### Data Models
+
+#### World Data Object
+
+```ts
+interface WorldDataObject {
+  [sceneDropId: string]: string; // Maps sceneDropId to assetId
+}
+```
 
 The World's data object should contain an object keyed by `sceneDropId` with the value set to `assetId` (both pulled from req.query, see example usage of getCredentials in existing controllers). This should only be updated if the World data object does not already contain a value for the `sceneDropId`.
 
@@ -50,7 +79,32 @@ Example output:
 }
 ```
 
-### Visitor Data Object
+#### Visitor Data Object
+
+```ts
+interface VisitorDataObject {
+  coinsAvailable: number;
+  totalCoinsEarned: number;
+  availablePlots: {
+    [plotId: number]: boolean;
+  };
+  seedsPurchased: {
+    [seedId: number]: {
+      id: number;
+      datePurchased: string;
+    };
+  };
+  plants: {
+    [droppedAssetId: string]: {
+      dateDropped: string;
+      seedId: number;
+      growLevel: number;
+      plotId: number;
+      wasHarvested: boolean;
+    };
+  };
+}
+```
 
 The Visitors' data objects should be updated when actions outlined in the users stories are taken.
 
@@ -103,9 +157,111 @@ Example output:
 }
 ```
 
-## 🧑‍💻 User Stories & Acceptance Criteria
+### API Endpoints
 
-Epic 1: Home Page
+#### 1. Get Game State
+
+```typescript
+// GET /game-state
+// Request: None (uses interactive parameters from query)
+// Response: { success: true, data: VisitorDataObject }
+```
+
+#### 2. Claim Plot
+
+```typescript
+// POST /plot/claim
+// Request: { plotId: number }
+// Response: { success: true, message: string }
+```
+
+#### 3. Purchase Seed
+
+```typescript
+// POST /seed/purchase
+// Request: { seedId: number }
+// Response: { success: true, data: { coinsRemaining: number } }
+```
+
+#### 4. Plant Seed
+
+```typescript
+// POST /plant/drop
+// Request: { seedId: number, plotId: number }
+// Response: { success: true, data: { droppedAssetId: string } }
+```
+
+#### 5. Harvest Plant
+
+```typescript
+// POST /plant/harvest
+// Request: { droppedAssetId: string }
+// Response: { success: true, data: { coinsEarned: number, totalCoins: number } }
+```
+
+### State Management
+
+The application will use the Global Context for state management with the following structure:
+
+```typescript
+interface GameState {
+  coinsAvailable: number;
+  totalCoinsEarned: number;
+  availablePlots: Record<number, boolean>;
+  seedsPurchased: Record<number, { id: number; datePurchased: string }>;
+  plants: Record<
+    string,
+    {
+      dateDropped: string;
+      seedId: number;
+      growLevel: number;
+      plotId: number;
+      wasHarvested: boolean;
+    }
+  >;
+  selectedPlotId: number | null;
+  selectedSeedId: number | null;
+  availableSeeds: Array<{
+    id: number;
+    name: string;
+    cost: number;
+    reward: number;
+    growthTime: number;
+    imageUrl: string;
+  }>;
+}
+```
+
+## 5. Implementation File Structure
+
+### Server-side Components
+
+- `server/controllers/handleGetGameState.ts` - Get current game state for visitor
+- `server/controllers/handleClaimPlot.ts` - Handle plot claiming
+- `server/controllers/handlePurchaseSeed.ts` - Handle seed purchases
+- `server/controllers/handlePlantSeed.ts` - Create and drop plant assets
+- `server/controllers/handleHarvestPlant.ts` - Handle plant harvesting
+- `server/controllers/handleUpdatePlantGrowth.ts` - Update plant growth level
+- `server/routes.ts` - Register all API endpoints
+- `server/utils/getPlantPosition.ts` - Calculate plant position relative to plot
+- `server/utils/initializeVisitorData.ts` - Set default visitor data structure
+
+### Client-side Components
+
+- `client/src/pages/GardenHome.tsx` - Home page with instructions
+- `client/src/pages/GardenPlots.tsx` - Plot selection and claiming
+- `client/src/pages/GardenSeeds.tsx` - Seed selection and purchase
+- `client/src/pages/GardenPlant.tsx` - Plant viewing and harvesting
+- `client/src/components/PlotGrid.tsx` - Grid of available plots
+- `client/src/components/SeedCard.tsx` - Individual seed card component
+- `client/src/components/PlantDetails.tsx` - Plant details with growth indicator
+- `client/src/components/GrowthTimer.tsx` - Visual growth timer component
+- `client/src/utils/calculateGrowthLevel.ts` - Calculate growth based on time
+- `client/src/utils/formatCurrency.ts` - Format coin amounts
+
+## 6. User Stories & Acceptance Criteria
+
+### Epic 1: Home Page
 
 User Story 1.1 - Clicking on a key asset to get instructions for how to play
 

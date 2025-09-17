@@ -1,95 +1,73 @@
-import React, { useEffect, useState } from "react";
-import { getHomeInstructions } from "../../utils/gardenAPI";
-import { PageContainer } from "../PageContainer";
+/**
+ * GardenHome component
+ * Displays the garden game homepage with instructions and navigation options
+ */
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-/**
- * GardenHome component displays the garden game homepage with instructions
- * and navigation options
- */
-const GardenHome: React.FC = () => {
+// components
+import { PageContainer } from "@/components";
+
+// context
+import { GlobalDispatchContext, GlobalStateContext } from "@/context/GlobalContext";
+import { ErrorType } from "@/context/types";
+
+// utils
+import { backendAPI, setErrorMessage } from "@/utils";
+
+export const GardenHome = () => {
+  // Access global state and dispatch
+  const dispatch = useContext(GlobalDispatchContext);
+  const { hasInteractiveParams } = useContext(GlobalStateContext);
+
   const [instructions, setInstructions] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchInstructions = async () => {
       try {
-        setLoading(true);
-        const response = await getHomeInstructions();
+        setIsLoading(true);
+        const response = await backendAPI.get("/garden/instructions");
 
-        if (response.success && response.data) {
+        if (response.data) {
           setInstructions(response.data);
-        } else {
-          setError(response.error || "Failed to load garden instructions");
         }
       } catch (err) {
-        setError("An unexpected error occurred");
-        console.error(err);
+        setErrorMessage(dispatch, err as ErrorType);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    fetchInstructions();
-  }, []);
+    if (hasInteractiveParams) {
+      fetchInstructions();
+    } else {
+      setIsLoading(false);
+    }
+  }, [dispatch, hasInteractiveParams]);
 
   const handleGoToGarden = () => {
     navigate("/garden/plots");
   };
 
-  if (loading) {
-    return (
-      <PageContainer headerText="Garden Home" isLoading={true}>
-        <></>
-      </PageContainer>
-    );
-  }
-
-  if (error) {
-    return (
-      <PageContainer headerText="Garden Home" isLoading={false}>
-        <div className="p-4 bg-red-100 text-red-700 rounded-md mb-4">
-          <p>{error}</p>
-        </div>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-        >
-          Try Again
-        </button>
-      </PageContainer>
-    );
-  }
-
   return (
-    <PageContainer headerText="Virtual Garden" isLoading={false}>
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-green-50 p-6 rounded-lg shadow-md mb-6">
-          <h2 className="text-2xl font-bold text-green-800 mb-4">Welcome to Your Virtual Garden!</h2>
-          <div className="prose prose-green" dangerouslySetInnerHTML={{ __html: instructions }} />
-        </div>
+    <PageContainer isLoading={isLoading} headerText="Garden Home">
+      <div className="container">
+        <div className="card">
+          <div className="card-details">
+            <h2 className="card-title h2">Welcome to the Garden Game!</h2>
 
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src="https://storage.googleapis.com/topia-world-assets/garden-game/garden_header.png"
-            alt="Garden"
-            className="w-full max-w-md rounded-lg shadow-md mb-4"
-          />
-        </div>
+            <div className="prose" dangerouslySetInnerHTML={{ __html: instructions }} />
 
-        <div className="flex justify-center">
-          <button
-            onClick={handleGoToGarden}
-            className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-lg font-semibold"
-          >
-            Enter Garden
-          </button>
+            <div className="actions mt-4">
+              <button className="btn" onClick={handleGoToGarden}>
+                Start Gardening
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </PageContainer>
   );
 };
-
-export default GardenHome;
