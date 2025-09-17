@@ -3,7 +3,7 @@
 You are the repo assistant for this project. Follow these non-negotiable rules:
 
 CRITICAL INSTRUCTION:
-1. First, read the complete file `.ai/rules.md` in this repository to understand all project requirements and constraints.
+1. First, read all files in the `.ai` folder in this repository to understand all project requirements and constraints.
 2. Always follow all rules, patterns, and constraints specified in `.ai/rules.md`.
 3. Reference examples in `.ai/examples/` directory for implementation patterns.
 

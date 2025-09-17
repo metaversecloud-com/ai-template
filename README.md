@@ -61,6 +61,17 @@ _We use data objects to store information about each implementation of the app p
 ![Node.js](https://img.shields.io/badge/node.js-%2343853D.svg?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/express-%23000000.svg?style=for-the-badge&logo=express&logoColor=white)
 
+### Styling Requirements
+
+This project uses the Topia SDK's CSS classes for consistent styling. Please follow these requirements:
+
+1. **Use SDK CSS classes** from https://sdk-style.s3.amazonaws.com/styles-3.0.2.css for all UI components.
+2. **Do not use Tailwind utilities** when an SDK class exists for that purpose.
+3. **Follow the examples** in `.ai/examples/styles.md` and `.ai/examples/page.md`.
+4. **Use the correct component structure** with proper aliased imports.
+
+See the comprehensive style guide in `.ai/style-guide.md` for complete requirements and examples.
+
 ### Getting Started
 
 - Clone this repository

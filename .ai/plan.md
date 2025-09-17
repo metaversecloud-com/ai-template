@@ -24,6 +24,17 @@ This version focuses on core mechanics only: planting, growing, and harvesting. 
 
 The "Key Asset" refers to a dropped asset that is already in world that when clicked will open this app in an iframe. All necessary credentials will be passed to that iframe by default. Note that this is separate from all plant dropped assets and will be the only dropped asset that is clickable in this version of the app.
 
+## CRITICAL STYLING REQUIREMENTS
+
+All client-side components MUST follow the comprehensive styling guide in `.ai/style-guide.md`.
+
+Key requirements:
+
+- Use SDK CSS classes for all UI elements
+- Follow the component structure pattern in examples
+- Use aliased imports and proper error handling
+- Validate styling before submitting implementation
+
 ## Data Object setup
 
 ### World Data Object

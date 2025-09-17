@@ -32,7 +32,7 @@ SDK USAGE POLICY
 - Follow existing server patterns using exports from server/utils/topiaInit.ts (do not bypass).
 - Wrap SDK calls in try/catch and either:
   - return JSON `{ success: boolean, ... }`, or
-  - throw and let server/errorHandler.ts handle it (follow existing controllers’ pattern).
+  - throw and let server/errorHandler.ts handle it (follow existing controllers' pattern).
 - Data objects: World/Visitor/User/DroppedAsset provide `fetchDataObject`, `setDataObject`, `updateDataObject`, `incrementDataObjectValue`.
   - Always ensure defaults: if a data object is missing, initialize via `setDataObject` with a default shape before calling `updateDataObject`.
   - Follow the pattern: `handleGetGameState.ts` → `getDroppedAsset` → `initializeDroppedAssetDataObject`. If defaults are unclear, STOP and ask.
@@ -61,7 +61,11 @@ ARCHITECTURE & BOUNDARIES
 - Flow: UI → client/backendAPI.ts (unchangeable) → server routes/controllers → Topia SDK.
 - Need new client behavior? Expose a new server route; do NOT bypass backendAPI.ts.
 - Follow patterns in existing client files for setting up pages, components, and especially calling the server.
-- Prefer CSS classes from https://sdk-style.s3.amazonaws.com/styles-3.0.2.css; see examples in `.ai/examples/styles.md`.
+- **REQUIRED: Use SDK CSS classes** from https://sdk-style.s3.amazonaws.com/styles-3.0.2.css; see comprehensive examples in `.ai/examples/styles.md`.
+  - Use `.btn`, `.card`, `.h1`-`.h4`, `.p1`-`.p4`, etc. classes directly from the SDK
+  - Do NOT use Tailwind utility classes except when absolutely necessary and no SDK class exists
+  - Never use inline styles except for dynamic positioning that cannot be handled via classes
+  - Follow the exact patterns shown in `.ai/examples/page.md` for component structure
 - Follow server/controllers patterns (naming, error handling, response shape).
 - In utils, catch blocks construct & throw a new Error (see server/utils/droppedAssets/getDroppedAsset.ts). Controllers catch like server/controllers/handleGetGameState.ts.
 - Keep the SDK wrapper thin to simplify mocking/tests.
@@ -92,7 +96,8 @@ Return these sections:
 2. Diffs or full new files
 3. Short rationale
 4. Test updates
-5. Run steps
+5. Styling validation report (for client components)
+6. Run steps
 
 IF BLOCKED
 
@@ -100,15 +105,34 @@ IF BLOCKED
   - STOP, propose a minimal stub, list assumptions, ask 1 concise question.
   - If no answer, proceed with safest assumption and mark TODOs.
 
+STYLING REQUIREMENTS (CRITICAL)
+
+For all client-side development, follow the comprehensive styling guide in `.ai/style-guide.md`. This document contains:
+
+1. **Required SDK CSS Classes** - Use the Topia SDK's CSS classes for all UI elements
+2. **Component Structure** - Follow the established pattern for component organization
+3. **Import Guidelines** - Use aliased imports and proper grouping
+4. **Error Handling** - Use GlobalContext for state management
+5. **Common Mistakes** - Examples of what to avoid
+
+Reference examples:
+
+- `.ai/examples/page.md` - Example page implementation
+- `.ai/examples/styles.md` - Specific styling examples
+
+Validation: Before submitting any implementation, verify that all components follow the styling requirements.
+
 WORKFLOW
 
 1. PLAN FIRST — output a concise plan BEFORE writing code:
    - file tree delta
    - endpoint signatures
    - data shapes (TS interfaces)
+   - styling requirements (reference `.ai/style-guide.md`)
 2. IMPLEMENT — minimal changes that satisfy constraints & tests.
 3. TEST — add/adjust Jest tests; ensure SDK mock coverage.
-4. EXPLAIN — provide the Deliverable Format output.
+4. VALIDATE STYLING — verify all components follow the style guide requirements.
+5. EXPLAIN — provide the Deliverable Format output.
 
 DEFINITION OF DONE (PLANT PICKER EXAMPLE)
 
