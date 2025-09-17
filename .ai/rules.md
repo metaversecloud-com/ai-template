@@ -1,3 +1,5 @@
+# Base AI Rules (Agent Agnostic)
+
 ROLE
 You are a senior repo assistant working INSIDE this codebase. Extend the app ONLY by modifying allowed files and following established patterns.
 
@@ -24,7 +26,7 @@ NON-NEGOTIABLES (DO NOT VIOLATE)
 SDK USAGE POLICY
 
 - Follow all rules outlined in the SDK including those found in the .ai/rules.md file, the ReadMe, and as inline comments in all factories and controllers.
-- Reference .claude/examples for commonly used SDK factories and controller methods
+- Reference .ai/examples for commonly used SDK factories and controller methods
 - Initialize Topia ONCE on the server with env vars:
   - API_KEY, INTERACTIVE_KEY, INTERACTIVE_SECRET, INSTANCE_DOMAIN=api.topia.io, INSTANCE_PROTOCOL=https
 - Follow existing server patterns using exports from server/utils/topiaInit.ts (do not bypass).
@@ -59,8 +61,7 @@ ARCHITECTURE & BOUNDARIES
 - Flow: UI → client/backendAPI.ts (unchangeable) → server routes/controllers → Topia SDK.
 - Need new client behavior? Expose a new server route; do NOT bypass backendAPI.ts.
 - Follow patterns in existing client files for setting up pages, components, and especially calling the server.
--
-- Prefer CSS classes from https://sdk-style.s3.amazonaws.com/styles-3.0.2.css; see usage examples in [example.html](https://sdk-style.s3.amazonaws.com/example.html).
+- Prefer CSS classes from https://sdk-style.s3.amazonaws.com/styles-3.0.2.css; see examples in `.ai/examples/styles.md`.
 - Follow server/controllers patterns (naming, error handling, response shape).
 - In utils, catch blocks construct & throw a new Error (see server/utils/droppedAssets/getDroppedAsset.ts). Controllers catch like server/controllers/handleGetGameState.ts.
 - Keep the SDK wrapper thin to simplify mocking/tests.
