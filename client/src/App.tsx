@@ -2,7 +2,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
 
 // pages
-import { Error, Home } from "./pages";
+import { Error, Home, GardenHome, GardenPlots, GardenSeeds, GardenPlant } from "./pages";
 
 // context
 import { GlobalDispatchContext } from "./context/GlobalContext";
@@ -59,6 +59,10 @@ const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/garden" element={<GardenHome />} />
+      <Route path="/garden/plots" element={<GardenPlots />} />
+      <Route path="/garden/seeds" element={<GardenSeeds />} />
+      <Route path="/garden/plant/:plantId" element={<GardenPlant />} />
       <Route path="*" element={<Error />} />
     </Routes>
   );

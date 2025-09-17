@@ -4,6 +4,14 @@ import {
   handleGetGameState,
   handleRemoveDroppedAssetsByUniqueName,
   handleFireToast,
+  handleGetHomeInstructions,
+  handleClaimPlot,
+  handleGetPlotDetails,
+  handleGetSeedMenu,
+  handlePurchaseSeed,
+  handlePlantSeed,
+  handleGetPlantDetails,
+  handleHarvestPlant,
 } from "./controllers/index.js";
 import { getVersion } from "./utils/getVersion.js";
 
@@ -35,5 +43,15 @@ router.post("/remove-dropped-assets", handleRemoveDroppedAssetsByUniqueName);
 
 // World
 router.put("/world/fire-toast", handleFireToast);
+
+// Garden Game Routes
+router.get("/garden/home-instructions", handleGetHomeInstructions);
+router.post("/garden/claim-plot", handleClaimPlot);
+router.get("/garden/plot-details", handleGetPlotDetails);
+router.get("/garden/seed-menu", handleGetSeedMenu);
+router.post("/garden/purchase-seed", handlePurchaseSeed);
+router.post("/garden/plant-seed", handlePlantSeed);
+router.get("/garden/plant-details", handleGetPlantDetails);
+router.post("/garden/harvest-plant", handleHarvestPlant);
 
 export default router;
