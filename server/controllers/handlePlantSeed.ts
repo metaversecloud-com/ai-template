@@ -8,6 +8,7 @@ import {
   calculateSquarePosition,
   Visitor,
   DroppedAsset,
+  Asset,
   World,
 } from "../utils/index.js";
 
@@ -74,15 +75,36 @@ export const handlePlantSeed = async (req: Request, res: Response) => {
     const plotAsset = await DroppedAsset.get(visitorData.ownedPlot.plotAssetId, urlSlug, { credentials });
     const plantPosition = calculateSquarePosition(plotAsset.position, squareIndex);
 
-    // Create the plant dropped asset using existing dropAsset function
-    // For now, we'll use a simple approach and create asset manually
+    // Create the plant dropped asset in the world
     const world = World.create(urlSlug, { credentials });
     const plantImageUrl = getPlantImageUrl(seedId, 0); // Start at growth level 0
 
-    // For now, create a simple placeholder plant asset
-    // This would need to be updated with the actual Topia SDK asset creation method
-    const plantAssetId = `plant_${Date.now()}_${squareIndex}`;
+    // Get the original plot asset to use as base for creating new plant asset
+    const asset = Asset.create("webImageAsset", { credentials });
+
+    // Drop a new plant asset at the calculated position
+    const newPlantAsset = await DroppedAsset.drop(asset, {
+      isInteractive: true,
+      interactivePublicKey: credentials.interactivePublicKey,
+      layer0: plantImageUrl,
+      position: plantPosition,
+      uniqueName: `${visitorData.ownedPlot.plotAssetId}-plant-${squareIndex}-${Date.now()}`,
+      urlSlug,
+    });
+
+    const plantAssetId = newPlantAsset.id;
     const dateDropped = new Date().toISOString();
+
+    // Trigger planting particle effect
+    try {
+      await world.triggerParticle({
+        name: "Sparkle",
+        duration: 2,
+        position: plantPosition,
+      });
+    } catch (error) {
+      console.error("Failed to trigger planting particle effect:", error);
+    }
 
     // Update visitor's data object
     const visitor = await Visitor.get(visitorId, urlSlug, { credentials });
@@ -97,7 +119,7 @@ export const handlePlantSeed = async (req: Request, res: Response) => {
       },
       plants: {
         ...visitorData.plants,
-        [plantAssetId]: {
+        [plantAssetId!]: {
           dateDropped,
           seedId,
           growLevel: 0,

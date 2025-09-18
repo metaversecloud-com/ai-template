@@ -14,8 +14,10 @@ import { backendAPI, setErrorMessage, setGameState } from "@/utils";
 
 export const GardenPlant = () => {
   const dispatch = useContext(GlobalDispatchContext);
-  const gameState = useContext(GlobalStateContext);
-  const { hasInteractiveParams } = gameState;
+  const { hasInteractiveParams, visitorData } = useContext(GlobalStateContext);
+  console.log("🚀 ~ GardenPlot.tsx:19 ~ visitorData:", visitorData);
+  const { plants } = visitorData || {};
+
   const [searchParams] = useSearchParams();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +43,7 @@ export const GardenPlant = () => {
   };
 
   // Find the specific plant data
-  const plant = gameState && assetId && gameState.plants ? gameState.plants[assetId] : null;
+  const plant = assetId && plants ? plants[assetId] : null;
 
   if (isLoading) {
     return (

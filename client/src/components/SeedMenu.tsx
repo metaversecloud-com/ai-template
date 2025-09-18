@@ -7,27 +7,15 @@ import { ErrorType } from "@/context/types";
 // utils
 import { backendAPI, setErrorMessage } from "@/utils";
 
-interface SeedConfig {
-  id: number;
-  name: string;
-  cost: number;
-  reward: number;
-  growthTime: number;
-  icon: string;
-}
+// types
+import { VisitorDataObject } from "@shared/types/VisitorData";
+import { SEED_CONFIGS } from "@shared/types/SeedConfig";
 
 interface SeedMenuProps {
-  gameState: any;
+  gameState: VisitorDataObject;
   onClose: () => void;
   onStateUpdate: () => void;
 }
-
-const SEED_CONFIGS: SeedConfig[] = [
-  { id: 1, name: "Carrot", cost: 0, reward: 2, growthTime: 60, icon: "🥕" },
-  { id: 2, name: "Lettuce", cost: 0, reward: 3, growthTime: 90, icon: "🥬" },
-  { id: 3, name: "Tomato", cost: 5, reward: 8, growthTime: 120, icon: "🍅" },
-  { id: 4, name: "Pumpkin", cost: 10, reward: 25, growthTime: 300, icon: "🎃" },
-];
 
 export const SeedMenu = ({ gameState, onClose, onStateUpdate }: SeedMenuProps) => {
   const dispatch = useContext(GlobalDispatchContext);
@@ -75,7 +63,7 @@ export const SeedMenu = ({ gameState, onClose, onStateUpdate }: SeedMenuProps) =
         </div>
 
         <div className="flex-col">
-          {SEED_CONFIGS.map((seed) => {
+          {Object.values(SEED_CONFIGS).map((seed) => {
             const purchased = isPurchased(seed.id);
             const affordable = canAfford(seed.cost);
             const free = isFree(seed.cost);

@@ -7,9 +7,12 @@ import { ErrorType } from "@/context/types";
 // utils
 import { backendAPI, setErrorMessage } from "@/utils";
 
+// types
+import { VisitorDataObject } from "@shared/types/VisitorData";
+
 interface PlotGridProps {
   plotSquares: { [key: number]: string | null };
-  plants: { [key: string]: any };
+  plants: VisitorDataObject["plants"];
   isReadOnly: boolean;
   onStateUpdate?: () => void;
 }
@@ -55,27 +58,20 @@ export const PlotGrid = ({ plotSquares, plants, isReadOnly, onStateUpdate }: Plo
     let squareClass = "card small";
     if (isEmpty && !isReadOnly) {
       squareClass += " cursor-pointer";
-      if (isSelected) squareClass += " selected";
+      if (isSelected) squareClass += " success";
     }
     if (plant?.wasHarvested) {
       squareClass += " opacity-50";
     }
 
     return (
-      <div
-        key={squareIndex}
-        className={squareClass}
-        onClick={() => handleSquareClick(squareIndex)}
-        style={{ minHeight: "80px", minWidth: "80px" }}
-      >
+      <div key={squareIndex} className={squareClass} onClick={() => handleSquareClick(squareIndex)}>
         <div className="card-details text-center">
           {plant && !plant.wasHarvested ? (
             <div>
               <p className="p3">{getSeedName(plant.seedId)}</p>
               <p className="p4 text-muted">Lv {plant.growLevel}/10</p>
-              {plant.growLevel >= 10 && (
-                <p className="p4 text-success">Ready!</p>
-              )}
+              {plant.growLevel >= 10 && <p className="p4 text-success">Ready!</p>}
             </div>
           ) : plant && plant.wasHarvested ? (
             <p className="p4 text-muted">Harvested</p>
@@ -99,19 +95,19 @@ export const PlotGrid = ({ plotSquares, plants, isReadOnly, onStateUpdate }: Plo
 
   return (
     <div className="flex-col">
-      <h3 className="h3 text-center">Garden Plot (4x4)</h3>
+      <h3 className="h3 text-center py-4">Garden Plot (4x4)</h3>
 
-      <div className="grid" style={{ gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+      <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
         {Array.from({ length: 16 }, (_, i) => renderSquare(i))}
       </div>
 
       {!isReadOnly && selectedSquare !== null && (
-        <div className="card">
-          <div className="card-details">
-            <h4 className="h4">Plant Seed in Square {selectedSquare}</h4>
+        <div className="card mt-4">
+          <div className="card-details grid gap-4">
+            <h4>Plant Seed in Square {selectedSquare}</h4>
             <p className="p3">Select a seed to plant:</p>
 
-            <div className="flex">
+            <div className="grid gap-2">
               <button
                 className={`btn btn-outline ${selectedSeedId === 1 ? "selected" : ""}`}
                 onClick={() => setSelectedSeedId(1)}
@@ -139,11 +135,7 @@ export const PlotGrid = ({ plotSquares, plants, isReadOnly, onStateUpdate }: Plo
             </div>
 
             <div className="flex">
-              <button
-                className="btn"
-                onClick={handlePlantSeed}
-                disabled={!selectedSeedId || isPlanting}
-              >
+              <button className="btn" onClick={handlePlantSeed} disabled={!selectedSeedId || isPlanting}>
                 {isPlanting ? "Planting..." : "Plant Seed"}
               </button>
               <button

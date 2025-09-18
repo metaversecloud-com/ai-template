@@ -1,4 +1,5 @@
-import { PlotGridConfig, VisitorDataObject } from "../types/VisitorDataTypes.js";
+import { VisitorDataObject } from "../../shared/types/VisitorData.js";
+import { PlotGridConfig } from "../types/Interfaces.js";
 
 export const PLOT_GRID_CONFIG: PlotGridConfig = {
   gridSize: 4,
@@ -10,7 +11,7 @@ export const PLOT_GRID_CONFIG: PlotGridConfig = {
 };
 
 export const DEFAULT_VISITOR_DATA: VisitorDataObject = {
-  coinsAvailable: 10, // Starting coins
+  coinsAvailable: 0, // Starting coins
   totalCoinsEarned: 0,
   ownedPlot: null, // No plot claimed initially
   seedsPurchased: {},

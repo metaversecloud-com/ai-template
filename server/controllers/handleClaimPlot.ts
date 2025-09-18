@@ -12,7 +12,6 @@ export const handleClaimPlot = async (req: Request, res: Response) => {
 
     // Initialize visitor data and check if they already own a plot
     const visitorData = await initializeVisitorData(credentials);
-    console.log("🚀 ~ handleClaimPlot.ts:21 ~ visitorData:", visitorData);
 
     if (visitorData.ownedPlot) {
       return res.status(400).json({
@@ -65,9 +64,9 @@ export const handleClaimPlot = async (req: Request, res: Response) => {
       claimedDate,
     });
 
-    // TODO: Update plot's clickable link when SDK method is available
-    // const updatedLink = `${req.get('host') || 'localhost'}/plot?ownerName=${encodeURIComponent(displayName)}&ownerProfileId=${profileId}`;
-    // await plotAsset.updateAsset({ clickableLink: updatedLink });
+    // Update plot's clickable link
+    const updatedLink = `${req.get("host") || "localhost"}/plot?ownerName=${encodeURIComponent(displayName)}&ownerProfileId=${profileId}`;
+    await plotAsset.updateClickType({ clickableLink: updatedLink });
 
     return res.json({
       success: true,
