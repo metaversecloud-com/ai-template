@@ -75,14 +75,19 @@ export const handleDropAssets = async (
 
     // Drop the web image asset into the world at calculated position
     const webImageDroppedAsset = await DroppedAsset.drop(webImageAsset, {
-      position: {
-        x: (position?.x || 0) + (parseInt(imageOffsetX) || 0),
-        y: (position?.y || 0) + (parseInt(imageOffsetY) || 0),
-      },
+      clickType: DroppedAssetClickType.LINK,
+      clickableLink: "https://topia.io",
+      clickableLinkTitle: "My awesome link!",
+      clickableDisplayTextDescription: "Description",
+      clickableDisplayTextHeadline: "Title",
       isInteractive: true,
       interactivePublicKey,
       layer0,
       layer1,
+      position: {
+        x: (position?.x || 0) + (parseInt(imageOffsetX) || 0),
+        y: (position?.y || 0) + (parseInt(imageOffsetY) || 0),
+      },
       sceneDropId,
       uniqueName: `${sceneDropId}-image-${assetId}`,
       urlSlug,

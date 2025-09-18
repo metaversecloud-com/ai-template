@@ -41,6 +41,7 @@ export const handleUpdateDroppedAsset = async (
         clickableLinkTitle: "My awesome link!",
         clickableDisplayTextDescription: "Description",
         clickableDisplayTextHeadline: "Title",
+        isOpenLinkInDrawer: true,
       }),
       // Update the visual appearance of the asset
       // First parameter is for the bottom layer and the second is for the top layer
