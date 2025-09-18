@@ -1,5 +1,12 @@
 import { Request, Response } from "express";
-import { errorHandler, getCredentials, initializeVisitorData, Visitor, DroppedAsset } from "../utils/index.js";
+import {
+  errorHandler,
+  getCredentials,
+  initializeVisitorData,
+  Visitor,
+  DroppedAsset,
+  getBaseUrl,
+} from "../utils/index.js";
 
 /**
  * Handle plot claiming - allows visitor to claim ownership of a plot
@@ -65,8 +72,13 @@ export const handleClaimPlot = async (req: Request, res: Response) => {
     });
 
     // Update plot's clickable link
-    const updatedLink = `${req.get("host") || "localhost"}/plot?ownerName=${encodeURIComponent(displayName)}&ownerProfileId=${profileId}`;
-    await plotAsset.updateClickType({ clickableLink: updatedLink });
+    const baseUrl = getBaseUrl(req.hostname);
+    const updatedLink = `${baseUrl}/plot?ownerName=${encodeURIComponent(displayName)}&ownerProfileId=${profileId}`;
+    await plotAsset.updateClickType({
+      clickableLink: updatedLink,
+      clickableLinkTitle: `${displayName}'s Plot`,
+      isOpenLinkInDrawer: true,
+    });
 
     return res.json({
       success: true,

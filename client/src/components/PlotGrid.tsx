@@ -9,15 +9,17 @@ import { backendAPI, setErrorMessage } from "@/utils";
 
 // types
 import { VisitorDataObject } from "@shared/types/VisitorData";
+import { SEED_CONFIGS } from "@shared/types/SeedConfig";
 
 interface PlotGridProps {
   plotSquares: { [key: number]: string | null };
   plants: VisitorDataObject["plants"];
   isReadOnly: boolean;
+  gameState?: VisitorDataObject;
   onStateUpdate?: () => void;
 }
 
-export const PlotGrid = ({ plotSquares, plants, isReadOnly, onStateUpdate }: PlotGridProps) => {
+export const PlotGrid = ({ plotSquares, plants, isReadOnly, gameState, onStateUpdate }: PlotGridProps) => {
   const dispatch = useContext(GlobalDispatchContext);
   const [selectedSquare, setSelectedSquare] = useState<number | null>(null);
   const [selectedSeedId, setSelectedSeedId] = useState<number | null>(null);
@@ -55,7 +57,7 @@ export const PlotGrid = ({ plotSquares, plants, isReadOnly, onStateUpdate }: Plo
     const isEmpty = !plantAssetId;
     const isSelected = selectedSquare === squareIndex;
 
-    let squareClass = "card small";
+    let squareClass = "card small flex items-center justify-center";
     if (isEmpty && !isReadOnly) {
       squareClass += " cursor-pointer";
       if (isSelected) squareClass += " success";
@@ -65,13 +67,22 @@ export const PlotGrid = ({ plotSquares, plants, isReadOnly, onStateUpdate }: Plo
     }
 
     return (
-      <div key={squareIndex} className={squareClass} onClick={() => handleSquareClick(squareIndex)}>
+      <div
+        key={squareIndex}
+        className={squareClass}
+        style={{ minHeight: "70px" }}
+        onClick={() => handleSquareClick(squareIndex)}
+      >
         <div className="card-details text-center">
           {plant && !plant.wasHarvested ? (
             <div>
-              <p className="p3">{getSeedName(plant.seedId)}</p>
-              <p className="p4 text-muted">Lv {plant.growLevel}/10</p>
-              {plant.growLevel >= 10 && <p className="p4 text-success">Ready!</p>}
+              <img className="m-auto" src={SEED_CONFIGS[plant.seedId].icon} />
+              <p className="p4 text-muted">
+                Lv {plant.growLevel}/{SEED_CONFIGS[plant.seedId]?.harvestLevel || 10}
+              </p>
+              {plant.growLevel >= (SEED_CONFIGS[plant.seedId]?.harvestLevel || 10) && (
+                <p className="p4 text-success">Ready!</p>
+              )}
             </div>
           ) : plant && plant.wasHarvested ? (
             <p className="p4 text-muted">Harvested</p>
@@ -81,16 +92,6 @@ export const PlotGrid = ({ plotSquares, plants, isReadOnly, onStateUpdate }: Plo
         </div>
       </div>
     );
-  };
-
-  const getSeedName = (seedId: number) => {
-    const seedNames: { [key: number]: string } = {
-      1: "🥕",
-      2: "🥬",
-      3: "🍅",
-      4: "🎃",
-    };
-    return seedNames[seedId] || "🌱";
   };
 
   return (
@@ -108,30 +109,26 @@ export const PlotGrid = ({ plotSquares, plants, isReadOnly, onStateUpdate }: Plo
             <p className="p3">Select a seed to plant:</p>
 
             <div className="grid gap-2">
-              <button
-                className={`btn btn-outline ${selectedSeedId === 1 ? "selected" : ""}`}
-                onClick={() => setSelectedSeedId(1)}
-              >
-                🥕 Carrot (Free)
-              </button>
-              <button
-                className={`btn btn-outline ${selectedSeedId === 2 ? "selected" : ""}`}
-                onClick={() => setSelectedSeedId(2)}
-              >
-                🥬 Lettuce (Free)
-              </button>
-              <button
-                className={`btn btn-outline ${selectedSeedId === 3 ? "selected" : ""}`}
-                onClick={() => setSelectedSeedId(3)}
-              >
-                🍅 Tomato (5 coins)
-              </button>
-              <button
-                className={`btn btn-outline ${selectedSeedId === 4 ? "selected" : ""}`}
-                onClick={() => setSelectedSeedId(4)}
-              >
-                🎃 Pumpkin (10 coins)
-              </button>
+              {Object.values(SEED_CONFIGS).map((seed) => {
+                const isFree = seed.cost === 0;
+                const isPurchased = gameState?.seedsPurchased[seed.id] || false;
+                const isAvailable = isFree || isPurchased;
+
+                return (
+                  <button
+                    key={seed.id}
+                    className={`btn btn-outline ${selectedSeedId === seed.id ? "btn-success-outline" : ""} ${
+                      !isAvailable ? "opacity-50" : ""
+                    }`}
+                    disabled={!isAvailable}
+                    onClick={() => isAvailable && setSelectedSeedId(seed.id)}
+                  >
+                    <img className="mr-2" src={seed.icon} />
+                    {seed.name}
+                    {!isAvailable && " (Not purchased)"}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="flex">

@@ -23,7 +23,7 @@ export const SeedMenu = ({ gameState, onClose, onStateUpdate }: SeedMenuProps) =
 
   const handlePurchaseSeed = async (seedId: number) => {
     try {
-      setPurchasingSeeds(prev => new Set([...prev, seedId]));
+      setPurchasingSeeds((prev) => new Set([...prev, seedId]));
 
       await backendAPI.post("/seed/purchase", { seedId });
 
@@ -32,7 +32,7 @@ export const SeedMenu = ({ gameState, onClose, onStateUpdate }: SeedMenuProps) =
     } catch (error) {
       setErrorMessage(dispatch, error as ErrorType);
     } finally {
-      setPurchasingSeeds(prev => {
+      setPurchasingSeeds((prev) => {
         const updated = new Set(prev);
         updated.delete(seedId);
         return updated;
@@ -56,13 +56,13 @@ export const SeedMenu = ({ gameState, onClose, onStateUpdate }: SeedMenuProps) =
         <h2 className="h2">🌱 Seed Menu</h2>
 
         <div className="card small">
-          <div className="card-details text-center">
-            <h3 className="card-title">💰 {gameState.coinsAvailable} Coins Available</h3>
+          <div className="card-details">
+            <h4 className="card-title">💰 {gameState.coinsAvailable} Coins Available</h4>
             <p className="p3">Total Earned: {gameState.totalCoinsEarned}</p>
           </div>
         </div>
 
-        <div className="flex-col">
+        <div className="grid gap-2">
           {Object.values(SEED_CONFIGS).map((seed) => {
             const purchased = isPurchased(seed.id);
             const affordable = canAfford(seed.cost);
@@ -71,35 +71,23 @@ export const SeedMenu = ({ gameState, onClose, onStateUpdate }: SeedMenuProps) =
 
             return (
               <div key={seed.id} className={`card ${!affordable && !free && !purchased ? "opacity-50" : ""}`}>
-                <div className="card-details">
-                  <div className="flex items-center">
-                    <div style={{ fontSize: "2rem", marginRight: "1rem" }}>
-                      {seed.icon}
+                <div className="card-details text-center">
+                  <h4 className="card-title flex justify-center">
+                    <img className="mr-2" src={seed.icon} />
+                    {seed.name}
+                  </h4>
+                  <div className="flex justify-center mt-2">
+                    <div className="flex-col mr-2">
+                      <p className="p3">Cost: {seed.cost === 0 ? "Free" : `${seed.cost} coins`}</p>
+                      <p className="p3">Reward: {seed.reward} coins</p>
                     </div>
-                    <div className="flex-col" style={{ flex: 1 }}>
-                      <h3 className="card-title">{seed.name}</h3>
-                      <div className="flex">
-                        <div className="flex-col" style={{ marginRight: "1rem" }}>
-                          <p className="p3">
-                            Cost: {seed.cost === 0 ? "Free" : `${seed.cost} coins`}
-                          </p>
-                          <p className="p3">
-                            Reward: {seed.reward} coins
-                          </p>
-                        </div>
-                        <div className="flex-col">
-                          <p className="p3">
-                            Growth: {formatTime(seed.growthTime)}
-                          </p>
-                          <p className="p3">
-                            Profit: +{seed.reward - seed.cost} coins
-                          </p>
-                        </div>
-                      </div>
+                    <div className="flex-col">
+                      <p className="p3">Growth: {formatTime(seed.growthTime)}</p>
+                      <p className="p3">Profit: +{seed.reward - seed.cost} coins</p>
                     </div>
                   </div>
 
-                  <div className="card-actions">
+                  <div className="card-actions justify-center">
                     {free ? (
                       <span className="p3 text-success">✓ Available</span>
                     ) : purchased ? (

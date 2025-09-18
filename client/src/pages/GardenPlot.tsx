@@ -40,7 +40,6 @@ export const GardenPlot = () => {
     backendAPI
       .get("/game-state")
       .then((response) => {
-        console.log("🚀 ~ GardenPlot.tsx:42 ~ response.data:", response.data);
         setGameState(dispatch, response.data);
       })
       .catch((error) => setErrorMessage(dispatch, error as ErrorType))
@@ -107,10 +106,10 @@ export const GardenPlot = () => {
         {/* Current user's plot */}
         {isOwnedByCurrentUser && ownedPlot && (
           <div className="grid gap-4">
-            <div className="card horizontal">
-              <div className="card-details">
+            <div className="card small">
+              <div className="card-details text-center">
                 <h3 className="card-title">💰 {coinsAvailable} Coins</h3>
-                <p className="card-description p3">Total Earned: {totalCoinsEarned}</p>
+                <p className="p3">Total Earned: {totalCoinsEarned}</p>
               </div>
             </div>
 
@@ -118,6 +117,7 @@ export const GardenPlot = () => {
               plotSquares={ownedPlot.plotSquares}
               plants={plants || {}}
               isReadOnly={false}
+              gameState={visitorData}
               onStateUpdate={loadGameState}
             />
 

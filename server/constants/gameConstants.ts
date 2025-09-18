@@ -3,10 +3,10 @@ import { PlotGridConfig } from "../types/Interfaces.js";
 
 export const PLOT_GRID_CONFIG: PlotGridConfig = {
   gridSize: 4,
-  squareSpacing: 32,
+  squareSpacing: 100,
   plotDimensions: {
-    width: 128,
-    height: 128,
+    width: 400,
+    height: 400,
   },
 };
 

@@ -15,7 +15,6 @@ import { backendAPI, setErrorMessage, setGameState } from "@/utils";
 export const GardenPlant = () => {
   const dispatch = useContext(GlobalDispatchContext);
   const { hasInteractiveParams, visitorData } = useContext(GlobalStateContext);
-  console.log("🚀 ~ GardenPlot.tsx:19 ~ visitorData:", visitorData);
   const { plants } = visitorData || {};
 
   const [searchParams] = useSearchParams();
@@ -84,17 +83,7 @@ export const GardenPlant = () => {
 
         {/* Current user's plant */}
         {isOwnedByCurrentUser && (
-          <div className="card">
-            <div className="card-details">
-              <h2 className="h2">Your Plant</h2>
-              <PlantDetails
-                plant={plant}
-                plantAssetId={assetId || ""}
-                isReadOnly={false}
-                onStateUpdate={loadGameState}
-              />
-            </div>
-          </div>
+          <PlantDetails plant={plant} plantAssetId={assetId || ""} isReadOnly={false} onStateUpdate={loadGameState} />
         )}
       </div>
     </PageContainer>

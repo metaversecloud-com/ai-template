@@ -78,8 +78,8 @@ interface SeedConfig {
 
 **Default Seed Types:**
 
-- Carrot (ID: 1): Free, 60s growth, 2 coin reward
-- Lettuce (ID: 2): Free, 90s growth, 3 coin reward
+- Potato (ID: 1): Free, 60s growth, 2 coin reward
+- Wheat (ID: 2): Free, 90s growth, 3 coin reward
 - Tomato (ID: 3): 5 coins, 120s growth, 8 coin reward
 - Pumpkin (ID: 4): 10 coins, 300s growth, 25 coin reward
 
@@ -367,13 +367,14 @@ Epic 3: Planting Seeds
 All plant images are stored by seedId with growth levels 0-10:
 
 ```typescript
+const s3URL = "https://topia-dev-test.s3.us-east-1.amazonaws.com/bounty";
 const PLANT_IMAGES = {
   1: {
-    // Carrot
-    0: "https://example.com/carrot-seed.png",
-    1: "https://example.com/carrot-sprout.png",
-    // ... levels 2-9
-    10: "https://example.com/carrot-full.png",
+    // Potato (harvest at level 3)
+    0: `${s3URL}/potato-0.png`,
+    1: `${s3URL}/potato-1.png`,
+    2: `${s3URL}/potato-2.png`,
+    3: `${s3URL}/potato-3.png`,
   },
   // ... other seed types
 };

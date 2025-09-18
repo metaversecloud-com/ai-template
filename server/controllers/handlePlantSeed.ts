@@ -10,7 +10,9 @@ import {
   DroppedAsset,
   Asset,
   World,
+  getBaseUrl,
 } from "../utils/index.js";
+import { DroppedAssetClickType } from "@rtsdk/topia";
 
 /**
  * Handle planting a seed - creates a new plant dropped asset in the world
@@ -18,7 +20,7 @@ import {
 export const handlePlantSeed = async (req: Request, res: Response) => {
   try {
     const credentials = getCredentials(req.query);
-    const { urlSlug, visitorId, profileId } = credentials;
+    const { displayName, urlSlug, visitorId, profileId } = credentials;
     const { seedId, squareIndex } = req.body;
 
     if (!seedId || typeof seedId !== "number" || typeof squareIndex !== "number") {
@@ -83,9 +85,15 @@ export const handlePlantSeed = async (req: Request, res: Response) => {
     const asset = Asset.create("webImageAsset", { credentials });
 
     // Drop a new plant asset at the calculated position
+    const baseUrl = getBaseUrl(req.hostname);
     const newPlantAsset = await DroppedAsset.drop(asset, {
+      assetScale: 1.8,
+      clickType: DroppedAssetClickType.LINK,
+      clickableLink: `${baseUrl}/plant?ownerName=${encodeURIComponent(displayName)}&ownerProfileId=${profileId}`,
+      clickableLinkTitle: seedConfig.name,
       isInteractive: true,
       interactivePublicKey: credentials.interactivePublicKey,
+      isOpenLinkInDrawer: true,
       layer0: plantImageUrl,
       position: plantPosition,
       uniqueName: `${visitorData.ownedPlot.plotAssetId}-plant-${squareIndex}-${Date.now()}`,

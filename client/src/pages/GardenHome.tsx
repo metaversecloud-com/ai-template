@@ -23,8 +23,8 @@ export const GardenHome = () => {
             <div className="card-details">
               <h4 className="card-title">2. Get Seeds</h4>
               <p className="card-description p3">
-                Some seeds are free (Carrot, Lettuce) while others cost coins (Tomato, Pumpkin). You start with 10 coins
-                to buy premium seeds.
+                Some seeds are free while others cost coins. You start with 0 coins, so plant free seeds first and start
+                harvesting to earn coins!
               </p>
             </div>
           </div>
@@ -33,8 +33,7 @@ export const GardenHome = () => {
             <div className="card-details">
               <h4 className="card-title">3. Plant & Wait</h4>
               <p className="card-description p3">
-                Plant seeds in your 4x4 plot grid. Plants grow automatically over time - from 1 minute (Carrot) to 5
-                minutes (Pumpkin).
+                Plant seeds in your 4x4 plot grid. Plants grow automatically over time.
               </p>
             </div>
           </div>

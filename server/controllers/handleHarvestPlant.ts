@@ -45,15 +45,7 @@ export const handleHarvestPlant = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if plant is fully grown (level 10)
-    if (plant.growLevel < 10) {
-      return res.status(400).json({
-        success: false,
-        error: `Plant is not ready for harvest. Current growth level: ${plant.growLevel}/10`,
-      });
-    }
-
-    // Get seed configuration for reward calculation
+    // Get seed configuration for harvest level and reward calculation
     const seedConfig = getSeedConfig(plant.seedId);
     if (!seedConfig) {
       return res.status(400).json({
@@ -62,26 +54,12 @@ export const handleHarvestPlant = async (req: Request, res: Response) => {
       });
     }
 
-    try {
-      // Remove the plant asset from the world
-      const plantAsset = await DroppedAsset.get(droppedAssetId, urlSlug, { credentials });
-      await plantAsset.deleteDroppedAsset();
-    } catch (error) {
-      console.error(`Failed to delete plant asset ${droppedAssetId}:`, error);
-      // Continue with harvest even if asset deletion fails (it might have been manually deleted)
-    }
-
-    // Trigger particle effect at plant position (if we can still get the asset)
-    try {
-      const plantAsset = await DroppedAsset.get(droppedAssetId, urlSlug, { credentials });
-      const world = World.create(urlSlug, { credentials });
-      await world.triggerParticle({
-        name: "Sparkle",
-        duration: 2,
-        position: plantAsset.position,
+    // Check if plant is fully grown (at harvest level)
+    if (plant.growLevel < seedConfig.harvestLevel) {
+      return res.status(400).json({
+        success: false,
+        error: `Plant is not ready for harvest. Current growth level: ${plant.growLevel}/${seedConfig.harvestLevel}`,
       });
-    } catch (error) {
-      console.error(`Failed to trigger harvest particle effect:`, error);
     }
 
     // Update visitor's data object
@@ -115,6 +93,28 @@ export const handleHarvestPlant = async (req: Request, res: Response) => {
         },
       ],
     });
+
+    // Trigger particle effect at plant position (if we can still get the asset)
+    try {
+      const plantAsset = await DroppedAsset.get(droppedAssetId, urlSlug, { credentials });
+      const world = World.create(urlSlug, { credentials });
+      await world.triggerParticle({
+        name: "Sparkle",
+        duration: 2,
+        position: plantAsset.position,
+      });
+    } catch (error) {
+      console.error(`Failed to trigger harvest particle effect:`, error);
+    }
+
+    try {
+      // Remove the plant asset from the world
+      const plantAsset = await DroppedAsset.get(droppedAssetId, urlSlug, { credentials });
+      await plantAsset.deleteDroppedAsset();
+    } catch (error) {
+      console.error(`Failed to delete plant asset ${droppedAssetId}:`, error);
+      // Continue with harvest even if asset deletion fails (it might have been manually deleted)
+    }
 
     return res.json({
       success: true,

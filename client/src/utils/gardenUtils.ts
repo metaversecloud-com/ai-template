@@ -1,3 +1,5 @@
+import { SEED_CONFIGS } from "@shared/types/SeedConfig";
+
 export interface SeedConfig {
   id: number;
   name: string;
@@ -6,13 +8,6 @@ export interface SeedConfig {
   growthTime: number;
   icon: string;
 }
-
-export const SEED_CONFIGS: { [key: number]: SeedConfig } = {
-  1: { id: 1, name: "Carrot", cost: 0, reward: 2, growthTime: 60, icon: "🥕" },
-  2: { id: 2, name: "Lettuce", cost: 0, reward: 3, growthTime: 90, icon: "🥬" },
-  3: { id: 3, name: "Tomato", cost: 5, reward: 8, growthTime: 120, icon: "🍅" },
-  4: { id: 4, name: "Pumpkin", cost: 10, reward: 25, growthTime: 300, icon: "🎃" },
-};
 
 export const getSeedConfig = (seedId: number): SeedConfig | null => {
   return SEED_CONFIGS[seedId] || null;
@@ -30,7 +25,7 @@ export const calculateGrowthLevel = (dateDropped: string, growthTime: number): n
 export const calculateTimeRemaining = (
   dateDropped: string,
   growthTime: number,
-  currentGrowLevel: number
+  currentGrowLevel: number,
 ): string | null => {
   const plantedTime = new Date(dateDropped).getTime();
   const currentTime = new Date().getTime();
