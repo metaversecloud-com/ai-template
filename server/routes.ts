@@ -1,10 +1,5 @@
 import express from "express";
-import {
-  handleDropAsset,
-  handleGetGameState,
-  handleRemoveDroppedAssetsByUniqueName,
-  handleFireToast,
-} from "./controllers/index.js";
+import { handleGetGameState } from "./controllers/index.js";
 import { getVersion } from "./utils/getVersion.js";
 
 const router = express.Router();
@@ -28,12 +23,6 @@ router.get("/system/health", (req, res) => {
   });
 });
 
-// Dropped Assets
 router.get("/game-state", handleGetGameState);
-router.post("/dropped-asset", handleDropAsset);
-router.post("/remove-dropped-assets", handleRemoveDroppedAssetsByUniqueName);
-
-// World
-router.put("/world/fire-toast", handleFireToast);
 
 export default router;

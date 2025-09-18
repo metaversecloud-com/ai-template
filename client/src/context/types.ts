@@ -1,3 +1,5 @@
+import { VisitorDataObject } from "@shared/types/VisitorData";
+
 export const SET_HAS_INTERACTIVE_PARAMS = "SET_HAS_INTERACTIVE_PARAMS";
 export const SET_GAME_STATE = "SET_GAME_STATE";
 export const SET_ERROR = "SET_ERROR";
@@ -20,6 +22,7 @@ export interface InitialState {
   isAdmin?: boolean;
   error?: string;
   hasInteractiveParams?: boolean;
+  visitorData?: VisitorDataObject;
 }
 
 export type ActionType = {

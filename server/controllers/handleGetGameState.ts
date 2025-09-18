@@ -42,6 +42,11 @@ export const handleGetGameState = async (req: Request, res: Response) => {
       });
     }
 
+    await world.fireToast({
+      title: "You've leveled up!",
+      text: "Congratulations! You've reached a new level.",
+    });
+
     return res.json({ droppedAsset, isAdmin, success: true });
   } catch (error) {
     return errorHandler({
