@@ -23,5 +23,5 @@ export default defineConfig({
       "@pages": path.resolve(__dirname, "./src/pages"),
       "@shared": path.resolve(__dirname, "../shared"),
     },
-  }
+  },
 });
