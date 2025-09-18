@@ -1,53 +1,67 @@
 import { Request, Response } from "express";
-import { errorHandler, getCredentials, getDroppedAsset, Visitor, World } from "../utils/index.js";
-import { VisitorInterface } from "@rtsdk/topia";
-import axios from "axios";
+import {
+  errorHandler,
+  getCredentials,
+  initializeVisitorData,
+  calculateGrowthLevel,
+  getSeedConfig,
+  Visitor,
+} from "../utils/index.js";
 
+/**
+ * Get the current game state for a visitor including their plot, plants, and coin balance
+ */
 export const handleGetGameState = async (req: Request, res: Response) => {
   try {
     const credentials = getCredentials(req.query);
-    const { assetId, displayName, interactiveNonce, interactivePublicKey, profileId, urlSlug, visitorId } = credentials;
+    const { urlSlug, visitorId } = credentials;
 
-    const droppedAsset = await getDroppedAsset(credentials);
-    if (droppedAsset instanceof Error) throw droppedAsset;
+    // Initialize visitor data with defaults if needed
+    let visitorData = await initializeVisitorData(credentials);
 
-    const world = World.create(urlSlug, { credentials });
-    world.triggerParticle({ name: "Sparkle", duration: 3, position: droppedAsset.position }).catch((error: any) =>
-      errorHandler({
-        error,
-        functionName: "handleGetGameState",
-        message: "Error triggering particle effects",
-      }),
-    );
+    // Update plant growth levels for all plants
+    const updatedPlants = { ...visitorData.plants };
+    let hasUpdates = false;
 
-    const visitor: VisitorInterface = await Visitor.get(visitorId, urlSlug, { credentials });
-    const { isAdmin } = visitor;
+    for (const [plantAssetId, plant] of Object.entries(visitorData.plants)) {
+      if (!plant.wasHarvested) {
+        const seedConfig = getSeedConfig(plant.seedId);
+        if (seedConfig) {
+          const currentGrowthLevel = calculateGrowthLevel(plant.dateDropped, seedConfig.growthTime);
 
-    try {
-      await axios.post(
-        `${process.env.LEADERBOARD_BASE_URL || "http://v2lboard0-prod-topia.topia-rtsdk.com"}/api/dropped-asset/increment-player-stats?assetId=${assetId}&displayName=${displayName}&interactiveNonce=${interactiveNonce}&interactivePublicKey=${interactivePublicKey}&profileId=${profileId}&urlSlug=${urlSlug}&visitorId=${visitorId}`,
-        {
-          publicKey: interactivePublicKey,
-          secret: process.env.INTERACTIVE_SECRET,
-          profileId,
-          displayName,
-          incrementBy: 1,
-        },
-      );
-    } catch (error) {
-      errorHandler({
-        error,
-        functionName: "handleGetGameState",
-        message: "Error posting player stats to Leaderboard",
+          if (currentGrowthLevel > plant.growLevel) {
+            // Update growth level in memory
+            updatedPlants[plantAssetId] = {
+              ...plant,
+              growLevel: currentGrowthLevel,
+            };
+            hasUpdates = true;
+
+            // TODO: Update the dropped asset's image when SDK method is available
+            // For now, growth is tracked in data but visual updates happen on next plant creation
+          }
+        }
+      }
+    }
+
+    // Save updated plant data if there were changes
+    if (hasUpdates) {
+      const visitor = await Visitor.get(visitorId, urlSlug, { credentials });
+      visitorData = { ...visitorData, plants: updatedPlants };
+      await visitor.updateDataObject(visitorData, {
+        analytics: [{ analyticName: "plant_growth_updated" }],
       });
     }
 
-    return res.json({ droppedAsset, isAdmin, success: true });
+    return res.json({
+      success: true,
+      visitorData,
+    });
   } catch (error) {
     return errorHandler({
       error,
-      functionName: "getDroppedAssetDetails",
-      message: "Error getting dropped asset instance and data object",
+      functionName: "handleGetGameState",
+      message: "Error getting game state",
       req,
       res,
     });

@@ -20,6 +20,15 @@ export interface InitialState {
   isAdmin?: boolean;
   error?: string;
   hasInteractiveParams?: boolean;
+  coinsAvailable?: number;
+  totalCoinsEarned?: number;
+  ownedPlot?: {
+    plotAssetId: string;
+    claimedDate: string;
+    plotSquares: { [key: number]: string | null };
+  } | null;
+  seedsPurchased?: { [key: number]: { id: number; datePurchased: string } };
+  plants?: { [key: string]: any };
 }
 
 export type ActionType = {

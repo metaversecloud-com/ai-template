@@ -4,3 +4,7 @@ export * from "./errorHandler.js";
 export * from "./getCredentials.js";
 export * from "./getVersion.js";
 export * from "./topiaInit.js";
+export * from "./visitors/index.js";
+export * from "./seeds/index.js";
+export * from "./gameUtils.js";
+export * from "../constants/index.js";
