@@ -6,6 +6,7 @@ import {
   calculateGrowthLevel,
   getSeedConfig,
   Visitor,
+  DroppedAsset,
 } from "../utils/index.js";
 
 /**
@@ -27,9 +28,13 @@ export const handleGetGameState = async (req: Request, res: Response) => {
       if (!plant.wasHarvested) {
         const seedConfig = getSeedConfig(plant.seedId);
         if (seedConfig) {
-          const currentGrowthLevel = calculateGrowthLevel(plant.dateDropped, seedConfig.growthTime);
+          const currentGrowthLevel = calculateGrowthLevel(
+            plant.dateDropped,
+            seedConfig.growthTime,
+            seedConfig.harvestLevel,
+          );
 
-          if (currentGrowthLevel > plant.growLevel) {
+          if (currentGrowthLevel !== plant.growLevel) {
             // Update growth level in memory
             updatedPlants[plantAssetId] = {
               ...plant,
@@ -37,8 +42,14 @@ export const handleGetGameState = async (req: Request, res: Response) => {
             };
             hasUpdates = true;
 
-            // TODO: Update the dropped asset's image when SDK method is available
-            // For now, growth is tracked in data but visual updates happen on next plant creation
+            try {
+              const droppedAsset = await DroppedAsset.create(plantAssetId, urlSlug, { credentials });
+              if (droppedAsset) {
+                await droppedAsset.updateWebImageLayers("", seedConfig.imageVariations[currentGrowthLevel]);
+              }
+            } catch (error) {
+              console.error("Failed to update dropped asset:", error);
+            }
           }
         }
       }

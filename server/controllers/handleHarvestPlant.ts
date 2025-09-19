@@ -118,10 +118,9 @@ export const handleHarvestPlant = async (req: Request, res: Response) => {
 
     return res.json({
       success: true,
-      data: {
-        coinsEarned: seedConfig.reward,
-        totalCoins: updatedVisitorData.coinsAvailable,
-      },
+      coinsEarned: seedConfig.reward,
+      totalCoins: updatedVisitorData.coinsAvailable,
+      visitorData: updatedVisitorData,
     });
   } catch (error) {
     return errorHandler({

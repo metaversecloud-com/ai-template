@@ -22,68 +22,44 @@ export const GardenPlant = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const ownerProfileId = searchParams.get("ownerProfileId");
+  const ownerName = searchParams.get("ownerName");
   const profileId = searchParams.get("profileId");
   const assetId = searchParams.get("assetId");
 
   const isOwnedByCurrentUser = ownerProfileId === profileId;
 
   useEffect(() => {
-    if (hasInteractiveParams) loadGameState();
+    if (hasInteractiveParams) {
+      backendAPI
+        .get("/game-state")
+        .then((response) => {
+          setGameState(dispatch, response.data);
+        })
+        .catch((error) => setErrorMessage(dispatch, error as ErrorType))
+        .finally(() => setIsLoading(false));
+    }
   }, [hasInteractiveParams]);
-
-  const loadGameState = async () => {
-    backendAPI
-      .get("/game-state")
-      .then((response) => {
-        setGameState(dispatch, response.data);
-      })
-      .catch((error) => setErrorMessage(dispatch, error as ErrorType))
-      .finally(() => setIsLoading(false));
-  };
 
   // Find the specific plant data
   const plant = assetId && plants ? plants[assetId] : null;
 
-  if (isLoading) {
-    return (
-      <PageContainer isLoading={true} headerText="Loading Plant...">
-        <></>
-      </PageContainer>
-    );
-  }
-
-  if (!plant) {
-    return (
-      <PageContainer isLoading={false} headerText="Plant Not Found">
-        <div className="container">
-          <div className="card danger">
-            <div className="card-details">
-              <h2 className="h2">Plant Not Found</h2>
-              <p className="p2">This plant doesn't exist or may have been harvested.</p>
-            </div>
-          </div>
-        </div>
-      </PageContainer>
-    );
-  }
-
   return (
-    <PageContainer isLoading={false} headerText="Garden Plant">
+    <PageContainer isLoading={isLoading} headerText="Garden Plant">
       <div className="container">
         {/* Plant owned by another user */}
         {!isOwnedByCurrentUser && (
           <div className="card">
             <div className="card-details">
               <h2 className="h2">Plant Details</h2>
-              <p className="p2">This plant belongs to another player.</p>
-              <PlantDetails plant={plant} isReadOnly={true} onStateUpdate={loadGameState} />
+              <p className="p2">This plant belongs to {ownerName || "another player"}</p>
+              {/* <PlantDetails plant={plant} isReadOnly={true} /> */}
             </div>
           </div>
         )}
 
         {/* Current user's plant */}
-        {isOwnedByCurrentUser && (
-          <PlantDetails plant={plant} plantAssetId={assetId || ""} isReadOnly={false} onStateUpdate={loadGameState} />
+        {isOwnedByCurrentUser && plant && (
+          <PlantDetails plant={plant} plantAssetId={assetId || ""} isReadOnly={false} />
         )}
       </div>
     </PageContainer>

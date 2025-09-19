@@ -5,7 +5,7 @@ import { GlobalDispatchContext } from "@/context/GlobalContext";
 import { ErrorType } from "@/context/types";
 
 // utils
-import { backendAPI, setErrorMessage } from "@/utils";
+import { backendAPI, setErrorMessage, setGameState } from "@/utils";
 
 // types
 import { VisitorDataObject } from "@shared/types/VisitorData";
@@ -14,30 +14,27 @@ import { SEED_CONFIGS } from "@shared/types/SeedConfig";
 interface SeedMenuProps {
   gameState: VisitorDataObject;
   onClose: () => void;
-  onStateUpdate: () => void;
 }
 
-export const SeedMenu = ({ gameState, onClose, onStateUpdate }: SeedMenuProps) => {
+export const SeedMenu = ({ gameState, onClose }: SeedMenuProps) => {
   const dispatch = useContext(GlobalDispatchContext);
   const [purchasingSeeds, setPurchasingSeeds] = useState<Set<number>>(new Set());
 
   const handlePurchaseSeed = async (seedId: number) => {
-    try {
-      setPurchasingSeeds((prev) => new Set([...prev, seedId]));
-
-      await backendAPI.post("/seed/purchase", { seedId });
-
-      // Update parent state
-      onStateUpdate();
-    } catch (error) {
-      setErrorMessage(dispatch, error as ErrorType);
-    } finally {
-      setPurchasingSeeds((prev) => {
-        const updated = new Set(prev);
-        updated.delete(seedId);
-        return updated;
+    setPurchasingSeeds((prev) => new Set([...prev, seedId]));
+    await backendAPI
+      .post("/seed/purchase", { seedId })
+      .then((response) => {
+        setGameState(dispatch, response.data);
+      })
+      .catch((error) => setErrorMessage(dispatch, error as ErrorType))
+      .finally(() => {
+        setPurchasingSeeds((prev) => {
+          const updated = new Set(prev);
+          updated.delete(seedId);
+          return updated;
+        });
       });
-    }
   };
 
   const canAfford = (cost: number) => gameState.coinsAvailable >= cost;

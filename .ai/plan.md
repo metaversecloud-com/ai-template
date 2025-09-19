@@ -405,7 +405,7 @@ As a player, I want to click a button to plant a seed in the world (create & dro
 - Once a seed and a square is selected the Plant Seed button should be enabled
 - Clicking Plant Seed drops the new DroppedAsset in the world
   - DroppedAsset `position` is calculated relative to the Plot's position using the square index (0-15 maps to 4x4 grid coordinates)
-  - DroppedAsset `layer0` should use the growth level 0 image for the selected seedId
+  - DroppedAsset `layer1` should use the growth level 0 image for the selected seedId
   - DroppedAsset should have clickType = "link" and clickableLink = `${req.hostname}/plant?seedId=${seedId}&ownerProfileId=${profileId}`
 - The Visitor's data is updated:
   - `plants` object adds entry keyed by `droppedAsset.id` with: `dateDropped`, `seedId`, `growLevel: 0`, `squareIndex`, `wasHarvested: false`
@@ -423,7 +423,7 @@ As a player, I want crops to grow over time so that they feel alive and rewardin
   - Calculate current growth level using the growth formula: `Math.floor((currentTime - dateDropped) / (growthTime / 10))`
   - If calculated growth level is higher than stored `growLevel`, update both:
     - Visitor's data object `plants[assetId].growLevel`
-    - DroppedAsset's `layer0` image to match new growth level
+    - DroppedAsset's `layer1` image to match new growth level
   - Show current growth progress, time remaining until next level, and harvest button (if fully grown)
 
 Epic 4: Harvesting and Rewards

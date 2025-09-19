@@ -58,7 +58,7 @@ export const PlotGrid = ({ plotSquares, plants, isReadOnly, gameState, onStateUp
     const isSelected = selectedSquare === squareIndex;
 
     let squareClass = "card small flex items-center justify-center";
-    if (isEmpty && !isReadOnly) {
+    if (isEmpty && !isReadOnly && !isPlanting) {
       squareClass += " cursor-pointer";
       if (isSelected) squareClass += " success";
     }
@@ -120,7 +120,7 @@ export const PlotGrid = ({ plotSquares, plants, isReadOnly, gameState, onStateUp
                     className={`btn btn-outline ${selectedSeedId === seed.id ? "btn-success-outline" : ""} ${
                       !isAvailable ? "opacity-50" : ""
                     }`}
-                    disabled={!isAvailable}
+                    disabled={!isAvailable || isPlanting}
                     onClick={() => isAvailable && setSelectedSeedId(seed.id)}
                   >
                     <img className="mr-2" src={seed.icon} />

@@ -47,21 +47,19 @@ export const GardenPlot = () => {
   };
 
   const handleClaimPlot = async () => {
-    try {
-      setIsClaiming(true);
-      await backendAPI.post("/plot/claim");
-      // Reload game state after claiming
-      await loadGameState();
-    } catch (error) {
-      setErrorMessage(dispatch, error as ErrorType);
-    } finally {
-      setIsClaiming(false);
-    }
+    setIsClaiming(true);
+    await backendAPI
+      .post("/plot/claim")
+      .then((response) => {
+        setGameState(dispatch, response.data);
+      })
+      .catch((error) => setErrorMessage(dispatch, error as ErrorType))
+      .finally(() => setIsClaiming(false));
   };
 
   // Show seed menu overlay
   if (visitorData && showSeedMenu && isOwnedByCurrentUser) {
-    return <SeedMenu gameState={visitorData} onClose={() => setShowSeedMenu(false)} onStateUpdate={loadGameState} />;
+    return <SeedMenu gameState={visitorData} onClose={() => setShowSeedMenu(false)} />;
   }
 
   return (

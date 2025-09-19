@@ -94,7 +94,7 @@ export const handlePlantSeed = async (req: Request, res: Response) => {
       isInteractive: true,
       interactivePublicKey: credentials.interactivePublicKey,
       isOpenLinkInDrawer: true,
-      layer0: plantImageUrl,
+      layer1: plantImageUrl,
       position: plantPosition,
       uniqueName: `${visitorData.ownedPlot.plotAssetId}-plant-${squareIndex}-${Date.now()}`,
       urlSlug,

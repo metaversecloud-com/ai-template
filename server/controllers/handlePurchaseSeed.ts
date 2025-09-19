@@ -1,11 +1,5 @@
 import { Request, Response } from "express";
-import {
-  errorHandler,
-  getCredentials,
-  initializeVisitorData,
-  getSeedConfig,
-  Visitor,
-} from "../utils/index.js";
+import { errorHandler, getCredentials, initializeVisitorData, getSeedConfig, Visitor } from "../utils/index.js";
 
 /**
  * Handle seed purchase - allows visitor to purchase seeds with coins
@@ -83,7 +77,7 @@ export const handlePurchaseSeed = async (req: Request, res: Response) => {
 
     return res.json({
       success: true,
-      data: { coinsRemaining: updatedVisitorData.coinsAvailable },
+      visitorData: updatedVisitorData,
     });
   } catch (error) {
     return errorHandler({

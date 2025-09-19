@@ -5,7 +5,7 @@ import { GlobalDispatchContext } from "@/context/GlobalContext";
 import { ErrorType } from "@/context/types";
 
 // utils
-import { backendAPI, setErrorMessage } from "@/utils";
+import { backendAPI, setErrorMessage, setGameState } from "@/utils";
 
 import { SEED_CONFIGS } from "@shared/types/SeedConfig";
 
@@ -19,10 +19,9 @@ interface PlantDetailsProps {
   };
   plantAssetId?: string;
   isReadOnly: boolean;
-  onStateUpdate?: () => void;
 }
 
-export const PlantDetails = ({ plant, plantAssetId, isReadOnly, onStateUpdate }: PlantDetailsProps) => {
+export const PlantDetails = ({ plant, plantAssetId, isReadOnly }: PlantDetailsProps) => {
   const dispatch = useContext(GlobalDispatchContext);
   const [isHarvesting, setIsHarvesting] = useState(false);
 
@@ -48,10 +47,9 @@ export const PlantDetails = ({ plant, plantAssetId, isReadOnly, onStateUpdate }:
 
       // Show success message
       if (response.data.success) {
-        console.log(`Harvested! Earned ${response.data.data.coinsEarned} coins`);
+        setGameState(dispatch, response.data);
+        console.log(`Harvested! Earned ${response.data.coinsEarned} coins`);
       }
-
-      onStateUpdate?.();
     } catch (error) {
       setErrorMessage(dispatch, error as ErrorType);
     } finally {

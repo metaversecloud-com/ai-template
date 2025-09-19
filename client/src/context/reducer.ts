@@ -2,8 +2,6 @@ import { ActionType, InitialState, SET_ERROR, SET_GAME_STATE, SET_HAS_INTERACTIV
 
 const globalReducer = (state: InitialState, action: ActionType) => {
   const { type, payload } = action;
-  console.log("🚀 ~ reducer.ts:5 ~ type:", type);
-  console.log("🚀 ~ reducer.ts:5 ~ payload:", payload);
   switch (type) {
     case SET_HAS_INTERACTIVE_PARAMS:
       return {

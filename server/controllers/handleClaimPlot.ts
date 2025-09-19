@@ -74,18 +74,21 @@ export const handleClaimPlot = async (req: Request, res: Response) => {
     // Update plot's clickable link
     const baseUrl = getBaseUrl(req.hostname);
     const updatedLink = `${baseUrl}/plot?ownerName=${encodeURIComponent(displayName)}&ownerProfileId=${profileId}`;
-    await plotAsset.updateClickType({
-      clickableLink: updatedLink,
-      clickableLinkTitle: `${displayName}'s Plot`,
-      isOpenLinkInDrawer: true,
-    });
+    const text = `${displayName}'s Plot`;
+    await Promise.all([
+      plotAsset.updateClickType({
+        clickableLink: updatedLink,
+        clickableLinkTitle: text,
+        isOpenLinkInDrawer: true,
+      }),
+      plotAsset.updateCustomTextAsset({}, text),
+    ]);
 
     return res.json({
       success: true,
-      data: {
-        plotAssetId: assetId,
-        claimedDate,
-      },
+      plotAssetId: assetId,
+      claimedDate,
+      visitorData: updatedVisitorData,
     });
   } catch (error) {
     return errorHandler({
