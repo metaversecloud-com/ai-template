@@ -1,2 +1,3 @@
 export * from "./Credentials.js";
-export * from "../../shared/types/VisitorData.js";
+export * from "./Interfaces.js";
+export * from "./VisitorDataTypes.js";
