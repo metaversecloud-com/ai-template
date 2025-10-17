@@ -59,7 +59,7 @@ export const getWorldAndDataObject = async ({ credentials }: { credentials: Cred
     return { dataObject: dataObject[sceneDropId], world };
   } catch (error: any) {
     // Forward the error for handling at the controller level
-    return new Error(error);
+    return standardizeError(error);
   }
 };
 ```

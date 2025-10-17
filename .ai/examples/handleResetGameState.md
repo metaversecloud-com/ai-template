@@ -51,6 +51,8 @@ export const handleResetGameState = async (
       },
     ];
 
+    const lockId = `${sceneDropId}-${resetCount}-${new Date(Math.round(new Date().getTime() / 10000) * 10000)}`
+
     // Update the world data object with reset game state
     if (!world.dataObject) {
       // If no data object exists, initialize it
@@ -61,7 +63,10 @@ export const handleResetGameState = async (
             leaderboard: {},
           },
         },
-        { analytics },
+        {
+          analytics,
+          { lock: { lockId, releaseLock: true } },
+        },
       );
     } else {
       // Update existing data for this scene
@@ -70,7 +75,9 @@ export const handleResetGameState = async (
           [`${sceneDropId}.numberOfCheckpoints`]: numberOfCheckpoints,
           [`${sceneDropId}.leaderboard`]: {},
         },
-        { analytics },
+        {
+          analytics,
+          { lock: { lockId, releaseLock: true } }, },
       );
     }
 

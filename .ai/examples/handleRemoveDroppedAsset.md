@@ -30,9 +30,6 @@ export const handleRemoveDroppedAsset = async (req: Request, res: Response): Pro
       position,
     });
 
-    // Delete the dropped asset from the world
-    await droppedAsset.deleteDroppedAsset();
-
     // Create a visitor instance to handle user-facing actions
     const visitor = await Visitor.get(visitorId, urlSlug, { credentials });
 
@@ -59,6 +56,9 @@ export const handleRemoveDroppedAsset = async (req: Request, res: Response): Pro
           message: "Error firing toast",
         }),
       );
+
+    // Delete the dropped asset from the world
+    await droppedAsset.deleteDroppedAsset();
 
     return res.json({ success: true });
   } catch (error) {

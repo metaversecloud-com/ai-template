@@ -27,9 +27,6 @@ export const handleRemoveDroppedAssets = async (req: Request, res: Response): Pr
       // Filter out the current assetId so that the Key Asset that opens the app is not removed from the world
       const ids = droppedAssetIds.filter((id: string) => id !== assetId);
 
-      // Use the static World.deleteDroppedAssets method to remove the assets
-      await World.deleteDroppedAssets(urlSlug, ids, process.env.INTERACTIVE_SECRET!, credentials);
-
       // Update the world data object and track analytics
       if (!world.dataObject) {
         // If dataObject doesn't exist yet, use setDataObject to initialize it
@@ -38,6 +35,9 @@ export const handleRemoveDroppedAssets = async (req: Request, res: Response): Pr
         // If dataObject exists, update it
         await world.updateDataObject({ droppedAssetIds: [] }, { analytics: [{ analyticName: `resets`, urlSlug }] });
       }
+
+      // Use the static World.deleteDroppedAssets method to remove the assets
+      await World.deleteDroppedAssets(urlSlug, ids, process.env.INTERACTIVE_SECRET!, credentials);
     }
 
     return res.json({ success: true });
